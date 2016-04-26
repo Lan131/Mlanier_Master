@@ -1,0 +1,242 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{The Use of Likelihood Inference for Quantifying Statistical Evidence}
+\author{Michael Lanier}
+
+\date{April 4, 2016}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{gb4e}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{amsmath}
+\usepackage{caption}
+\newcommand{\rpm}{\raisebox{.2ex}{$\scriptstyle\pm$}}
+
+\theoremstyle{definition}
+\newtheorem{exmp}{Example}[section]
+
+
+\begin{document}
+\maketitle
+\section{Introduction}
+
+\indent To motivate this paper, let us start with a simple binomial random variable, $X \sim BIN(n,\theta)$. Recall that the maximum likelihood estimator (MLE) is derived to be the sample proportion $\hat{\theta}=x/n$. Likelihood inference is based on the same reasoning, but rather than focus only on the maximum, focus is on how well the data supports parameters across the entire parameter space.
+
+\begin{exmp}
+Let $\mathlarger{X \sim BIN(n=10,\theta)}$, observe $x=8$ successes. The likelihood function is given by \newline \begin{center}
+$L(\theta)={n \choose x} \theta^{x} (1-\theta)^{n-x} $ \end{center} \newline The corresponding Likelihood ratio is given by \newline \begin{center} $\mathlarger{ LR(\theta)=\frac{{n \choose x}\theta^{x} (1-\theta)^{n-x}}{{n \choose x}\hat{\theta}^{x}(1-\hat{\theta})^{n-x}}}$ \end{center}\newlineEvaluating The denominator at the sample proportion $\hat{\theta}=.8 $ ($x=8$ successes in $n=10$ tries) gives us \newline\begin{center}  $\mathlarger{LR(\theta)=\frac{\theta^{8} (1-\theta)^{2}}{.8^{8}(.2)^{2}}}$ \end{center} A graph of the likelihood ratio is given by
+
+\includegraphics[scale=.4]{image0.png}
+\end{exmp}
+
+Often the MLE is the focal point of the likelihood inference to such a degree that the MLE is thought to contain nearly everything we want to know about the evidence. This plot demonstrates this is not the case as there is a range of parameters with likelihood nearly that of the maximum. Referring to the likelihood function\footnote{We will often scale the likelihood function as a factor of its maximum. We will use the terms "likelihood function" and "likelihood ratio" interchangeably.} will allow us to quantify the amount of information in an observed sample. We will see this in the following examples.
+
+\begin{exmp}
+Consider a farmer planting 100 seeds of a particular species of corn. The farmer wants to estimate the probability that the seed germinates. Let the number of germinating seeds be a binomial random variable $X \sim BIN(n=100,\theta)$ with $\theta$ being the probability of genermination. Suppose he observes $x=5$ successes. The likelihood ratio as a function of $\theta$ is shown as \newline \center  $\mathlarger{LR(\theta)=\frac{{100 \choose 5}\theta^{5} (1-\theta)^{95}}{{100 \choose 5}\hat{\theta}^{5}(1-\hat{\theta})^{95}}=\frac{\theta^{5} (1-\theta)^{95}}{.05^{5}(.95)^{95}}}$ 
+\centering 
+\includegraphics[scale=.5]{image1.png}
+
+\end{exmp}
+\begin{exmp}
+Consider the farmer from Example 1.2. Every year seed is sown, in the following year some of the seed from the prior year germinates in the new year. Instead of observing $x=5$ he has observed $x\leq10$, because 10 seeds have germinated, but some of them could have been from the prior year. The farmer is interested in the number of seeds $x$ sown this year. In this case, the likelihood ratio becomes
+\begin{center}
+$\mathlarger{LR(\theta)=\frac{\sum_{x=0}^{10} {100 \choose x} \theta^{x} (1-\theta)^{n-x}}{1}}$
+\end{center}
+Note that the denominator is 1. The likelihood function can be written as  $P(x\leq10 | \theta)$. The largest a probability can be is 1, occurring when $\theta=0$. Thus, we take $\hat{\theta}$ as the MLE, and $L(\hat{\theta})=1$ as the maximum likelihood. This is demonstrated in a graph of the likelihood over the parameter values.
+
+\includegraphics[scale=.5]{image2.png}
+
+\end{exmp}
+It is clear that the MLE occurs at $\hat{\theta}=0.$ We can compare this graph to that in example 1.2. Obviously there is more information when an exact value is observed, as in the first case, than when an interval is observed as in the second case. This conclusion could not be obtained from the MLE alone. Additionally, the MLE in the example 1.3, $\hat{\theta}=0$, is not desirable as a summary of the data.
+
+\begin{exmp}
+Consider a set of normal random variables $X_1,...,X_n \overset{iid}{\sim }N(\theta,1)$ with  with $n=5$ and an observed $\bar{x}=2.5$. The MLE is derived to be sample mean $\bar{x}$ . The corresponding likelihood ratio can be given by \newline \begin{center} $LR(\theta)=\frac{{\displaystyle \prod_{i=1}^{n} \frac{\exp\{\frac{-(x-\theta)^2}{2}\}}{\sigma\sqrt{2\pi}}}}   {{\displaystyle \prod_{i=1}^{n} \frac{\exp\{\frac{-(x-2.5)^2}{2}\}}{\sigma\sqrt{2\pi}}}}$ \end{center} A graph of the likelihood ratio over the parameter values provides a view of the evidence provided by the data.
+
+\includegraphics[scale=.5]{image3.png}
+
+\end{exmp}
+
+We know from sufficiency that no information is lost in observing a sample mean. A consequence of succiciency is that the likelihood function can be written based on the sample as $$L(\theta)=\frac{\exp\{\frac{-n(\bar{x}-\theta)^2}{\sigma^2}\}}{\sigma\sqrt{2\pi}} $$ Let's observe a case where the observed data is not sufficient for the parameter. That is, the observed data does involve lost information. We can use likelihood inference to quantify the degree to which the evidence is less precise. 
+
+
+\begin{exmp}
+Consider a set of normal random variables $X_1,...,X_n \overset{iid}{\sim }N(\theta,1)$ with $n=5$ and an observed $x_{max}=3.5$. The likelihood ratio can be given by the CDF of the largest order statistic:   \newline
+$$G(x_{max})=1-P(\text{all }X_i > x)=1-[1-F(x)]^n$$ \newline  So, $$g(x_{max})=n[1-F(x)]^{n-1}(f(x))$$ \newline The likelihood function for normal data is then \begin{center} \newline
+
+$L(\theta) = n \phi(x_{max}-\theta)[1-\Phi(x_{max}-\theta)]^{n-1}$
+
+\end{center}
+Since $F$,$f$ are the cdf,pdf respectively of the the $N(\theta,1)$ distribution,we can write $F(x)=\Phi(x-\theta)$ and $f(x)=\phi(x-\theta)$ \newline\newline
+The MLE is found using numerical methods to be $\hat{\theta}=2.44$. A graph of the likelihood function is as follows: \newline
+\includegraphics[scale=.5]{image4.png}
+
+
+The likelihood ratios in the two cases are maximized near the same point. But as an overlay shows us, the likelihood function in the second case is more disperse indicating a lower degree of available evidence.
+ \begin{center}
+\includegraphics[scale=.4]{Overlay.png}
+\end{center}
+\end{exmp}
+ 
+\newline\indent Not only does the likelihood function quantify evidence, it also has the property that it is not dependent on the intention of the experimenter. This is known as the likelihood principle and will be illustrated with the following examples.
+
+\begin{exmp}
+Consider a team of geneticists investigating the prevalence of a rare genotype. However, the geneticists' sampling scheme is not predetermined. If the sampling continues for a fixed number of trials, then the number of successes is a random variable $X \sim BIN(n,\theta)$ It may be that the sampling will continue until a certain number of successes. In this case, the number of trials is a random variable $N\sim NB(x,\theta)$. The likelihood ratio in the former case is given by \begin{center} $\mathlarger{ LR_1(\theta)=\frac{{n \choose x}\theta^{x} (1-\theta)^{n-x}}{{n \choose x}\hat{\theta}^{x}(1-\hat{\theta})^{n-x}}}$ \end{center} \newline In the latter case the likelihood ratio is given by \newline \begin{center} $\mathlarger{ LR_2(\theta)=\frac{{n-1 \choose x-1}\theta^{x} (1-\theta)^{n-x}}{{n-1 \choose x-1}\hat{\theta}^{x}(1-\hat{\theta})^{n-x}}}$ \end{center} \newline More importantly  $LR_1(\theta)= LR_2(\theta)$ because it is clear that $\hat{\theta}=\frac{x}{n}$ in both cases. The same outcomes lead to the same likelihood regardless of intended sampling scheme. Thus we have the same information about $\theta$ whether we observed $n$ successes in a fixed number of trials or ran trials until we observed $n$ successes. This is an illustration of the likelihood principle, which states all the information about the parameter is in its likelihood function. Because of the likelihood principle there is no extra difficulty in quantifying data evidence at multiple points in the sampling. Let's illustrate the available evidence as the experiment progresses:
+
+\newline \indent After the first 50 trials no successes have been obtained. The likelihood function is as shown below. At this point, there is strong evidence pointing to a very small value for $\theta$ \newline
+
+
+          \includegraphics[scale=.8]{image5.png}
+
+         
+     The first success is observed at trial 52. Now, the likelihood has its maximum at a positive value. The likelihood displays the data evidence shown as: \newline
+          \includegraphics[scale=.8]{image6.png}
+  
+    After 552 trials, we have observed 5 successes. At this point, the data evidence is very strong as shown in the likelihood function:
+    \newline
+          \includegraphics[scale=.8]{image7.png}
+
+
+\end{exmp}
+
+This case is a strong motivator that the likelihood function is an appropriate way to draw inferences from data. The inclusion of multiple views of the data is very difficult to handle under a frequentist framework, because it requires making further findings conditional of the previously observed data. Two experimenters running the same experiment can then get differing results due to the fact that one viewed the data half way through and the other did not. To frequentists, whether a result is significant may depend on the design of the experiment. Under the likelihood principle the inference is not influenced by design.\indent In the next example, we consider a two-parameter model.
+
+\begin{exmp}
+In this case our focus is on estimation of the mean of a normal distribution with an unknown variance $\sigma^{2}$. A parameter that is unknown, but not of interest, is called a nuisance parameter. Consider random variables $X_1,...,X_n \overset{iid}{\sim }N(\theta,\sigma^2)$. The likelihood function becomes \newline \begin{center}
+$\mathlarger{L(\theta,\sigma^2)=(2\pi)^{-n/2}(\sigma^2)^{-n/2}\exp\{\frac{-\sum_{i=1}^{n}(x_i-\theta)^2}{2\sigma^2}\}}$
+\end{center}
+Write \begin{center}
+$\mathlarger{\sum_{i=1}^{n}(x_i-\theta)^2=\sum_{i=1}^{n}(x_i-\bar{x}+(\bar{x}-\theta))^2=\sum_{i=1}^{n}((x_i-\bar{x})^2+n(\bar{x}-\theta)^2}$
+\end{center}
+So, 
+\begin{center}
+$\mathlarger{ L(\theta,\sigma^2)=(2\pi)^{-n/2}(\sigma^2)^{-n/2}\exp\{\frac{-\sum_{i=1}^{n}(x_i-\bar{x})^2}{2\sigma^2}\}\exp\{\frac{-\sum_{i=1}^{n}n(\bar{x}-\theta)^2\}   }$
+\end{center}
+The MLEs are easily found to be  \newline$$ \mathlarger{\hat{\theta}=\bar{x}}$$ $$\mathlarger{\hat{\sigma}^2=\frac{\sum_{i=1}^{n}(x_i-\bar{x})^2}{n}}$$
+\newline We are looking for a way to display the likelihood function over the parameter space on the mean $\theta$ alone. The question is what to do with $\sigma^2$. Here we will introduce the plug in method. In this method we will take the estimate $\hat{\sigma}$ as $\sigma$ itself. We will "plug in" $\hat{\sigma}$ for $\sigma$.
+\begin{center}
+\begin{equation*}
+$$L_{pi}(\theta)\\=L(\theta,\hat{\sigma}^2)\\=(2\pi)^{-n/2}(\hat{\sigma}^2)^{-n/2}e^{-n/2}\exp\{\frac{\sum_{i=1}^{n}-n(\bar{x}-\theta)^2}{2\hat{\sigma}^2}\}\\=(2\pi e)^{-n/2}(\hat{\sigma}^2)^{-n/2}e^{-n/2}\exp\{\frac{\sum_{i=1}^{n}-n(\bar{x}-\theta)^2}{2\hat{\sigma}^2}\}}$$
+\end{equation*}
+\end{center}
+
+The plug-in likelihood ratio is then
+$$LR_{pi}(\theta)=L_{pi}(\theta)/L_{pi}(\hat{\theta})=\exp\{
+\frac{-n(\bar{x}-\theta)^2}{2\hat{\sigma}^2}
+\}$$
+The plug-in method overstates evidence near $\hat{\theta}$ since the curvature is based as if the true variance were known. Let us know examine a second approach call the profile likelihood. In this method we will write the nuisance parameter as a function of the parameter of interest. 
+
+Define the profile likelihood as follows:
+\begin{center}
+    $$LR_{pr}(\theta)=L_{pr}(\theta,\sigma_\theta^2)$$
+   
+\end{center}    
+ where\footnote{For fixed $\theta$ we can maximize $L(\theta,\sigma^2)=(2\pi)^{-n/2}(\sigma^2)^{-n/2}\exp\{\frac{-\sum_{i=1}^{n}(x_i-\theta)^2}{2\sigma^2}\}$ at $\sigma_\theta^2=\frac{\sum_{i=1}^{n}(x_i-\theta)^2}{n}$.}
+
+
+ $$\sigma_\theta^2= \underset{\sigma^2}{\mathrm{Argmax}} (L(\theta,\sigma^2))$$\\$$=\frac{\sum_{i=1}^{n}(x_i-\theta)^2}{n}$$\\$$=\frac{\sum_{i=1}^{n}((x_i-\bar{x})^2+(\bar{x}-\theta)^2)}{n}$$\\$$=\hat{\sigma}^2+(\bar{x}-\theta)^2$$ So, \\ $$L_{pr}(\theta)=(2\pi)^{-n/2}(\sigma_\theta^2)^{-n/2}\exp\{\frac{-\sum_{i=1}^{n}(x_i-\theta)^2}{2\sigma_\theta^2}\}$$ \newline Since$$\sum_{i=1}^{n}(x_i-\theta)^2=n\sigma_\theta^2 $$\\we have $$L_{pr}(\theta)=(2\pi e)^{-n/2}(\sigma_\theta^2)^{-n/2}$$\\ 
+We can see $L_{pr}(\theta)$ is maximized when $\sigma_\theta^2$ is minimized. By inspection, $\sigma_\theta^2$ is minimized when $\theta=\hat{\theta}=\bar{x}$. Furthermore, $$ \sigma_{\hat{\theta}}^2=\hat{\sigma}^2+(\hat{x}-\hat{\theta})^2=\hat{\sigma}^2$$
+
+The profile likelihood ratio can be written as $$LR_{pr}(\theta)=\frac{L_{pr}(\theta)}{L_{pr}(\hat{\theta})}=(\frac{\sigma_\theta^2}{\hat{\sigma_\theta}^2})^{-n/2}=(\frac{\hat{\sigma}^2+(\hat{x}-\theta)^2}{\sigma_\theta^2})^{-n/2}=(1+(\frac{\hat{x}-\theta}{\hat{\sigma}})^2)^{-n/2} $$ 
+
+Let us look at a short example of how the plug-in method overstates evidence near $\hat{\theta}$. Consider a sample $X_1,...,X_n \overset{iid}{\sim }N(\theta,\sigma^2)$ resulting in $n=10$, $\bar{x}=4$, and $\hat{\sigma}=1$.
+
+\includegraphics[scale=.5]{image8.png}
+
+This graph demonstrates that the the plug-in likelihood is assigning higher evidence near the MLE. \newline\indent
+We will now establish an analytical connection here between the plug-in likelihood and the profile likelihood.
+
+Let $$t(\theta)=\frac{\sqrt{n}(\bar{x}-\theta)}{\hat{\sigma}}.$$ Note that $t(\theta_0)$ is the standardized statistic for testing the null hypothesis $H_0: \theta=\theta_0$. In general, $t(\theta)$ represents the difference between observed data and a parameter value $\theta$. Therefore, $$LR_{pi}(\theta)=\exp\{\frac{-t^2(\theta)}{2}\} $$ and $$LR_{pr}(\theta)=(1+\frac{t^2(\theta)}{n})^{-n/2} $$ \\So, 
+$$LR_{pr}\rightarrow LR_{pi}(\theta) \text{ as }   n\rightarrow\infty$$ \\since $$\lim_{n\to\infty}(1+\frac{a}{n})^{-bt}=e^{-bt}  $$ \\and by extension $$\lim_{n\to\infty}(1+\frac{t^2}{n})^{-n/2}=e^{-t^2/2}  $$ 
+
+The profile likelihood takes the most conservative approach in defining likelihood across the nuisance parameter. Since $LR_{pr}(\theta)$ is maximized across $\sigma^2$, the level of evidence in the likelihood away from the MLE $\hat{\theta}$ decreases at the slowest rate. For large $n$, the overstatement of evidence in taking a nuisance parameter as known diminishes.
+\end{exmp} 
+\section{Likelihood Intervals}
+\indent In the previous section we made a case for the use of the likelihood function as a measure of statistical evidence beyond simply its MLE. One way we made this case was through the use of a graph as a summary of the known evidence. However, a numerical summary may be preferred. We will now investigate how we can summarize the information from the likelihood function as an interval. Define a set of parameter values as follows:
+$$\{\theta: LR(\theta)>c\}$$
+Such an interval includes all parameter values having data support above a specified cut-off $c$.
+\newline
+\includegraphics[scale=.8]{image9.png}
+
+
+The question of how to choose the cut-off point is to be solved. To find this solution we will look to cases where a frequentist confidence interval is seen to match a likelihood interval. Recall that a confidence interval can be derived through the inversion of a hypothesis test. We test $H_0:\theta=\theta_0$ at level $\alpha$ based on Wilk's likelihood ratio statistic:$$W(\theta_0)=-2log(\frac{L(\theta_0)}{L(\hat{\theta})})\\=-2log(LR(\theta_0))$$ Large sample theory establishes $W\sim\chi^2$ when the null hypothesis is true. So our test accepts $H_0$ if and only if $$W(\theta_0)\leq\chi^2_{\alpha,1} $$ where $ \chi^2_{\alpha,1}  $ is the upper $\alpha$\textsuperscript{th} percentile of a $\chi^2_1$. \newline \indent By inverting the test to include all parameters $\theta$ accepted under a level $\alpha$ test, we find that a $(1-\alpha)100\%)$ confidence interval for $\theta$ is given by $$\{\theta: W(\theta)\leq\chi^2_{\alpha,1} \} $$ The derivation of the likelihood ratio in terms of $\chi^2_{\alpha,1}$ follows directly. The inequality
+$$W(\theta)\leq\chi^2_{\alpha,1} $$ along with $$W(\theta)=-2log(LR(\theta)).$$ together imply $$LR(\theta)\geq e^{-\chi^2_{\alpha,1}/2} $$ Thus a frequentist interval matches the likelihood interval when $$c= e^{-\chi^2_{\alpha,1}/2} $$ For example, a 95\% confidence interval would give a likelihood ratio cut-off of $c\approx.15$.
+
+\begin{exmp}
+Let $X\sim BIN(n,\theta)$ and observe $n=100$, $x=80$. The normal approximation of the binomial gives us $$\hat{\theta} \approx N(\theta, \frac{\hat{\theta}(1-\hat{\theta})}{n}) $$ A 95\% confidence interval for $\theta$ is given by $$ \hat{\theta}\rpm 1.96\sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{n}}=[.72,.88]$$ We can solve \footnote{Under a set of regularity conditions $LR(\theta)$ will be monotone increasing on an interval $[0,MLE]$ and monotone decreasing on an interval $[MLE,\infty]$. Given $c\in [0,MLE]$, the Intermediate Value Theorem guarantees the existence and uniqueness of  $[\theta_l,\theta_u]$.}  $LR(\theta)=.15$ to find our likelihood interval. In our case we have $$ \frac{\theta^{80} (1-\theta)^{20}}{(.8)^{80}(1-.8)^{20}}}=.15$$ This gives an interval of $[.72,.87]$.
+\end{exmp}
+As we can see our traditional confidence interval is very close to our likelihood interval. Likelihood intervals will not always closely match confidence intervals. Consider the genotype example from example 1.6.
+
+\begin{exmp}
+Let $X\sim BIN(n,\theta)$. Observe $n=552$ and $x=5$. A 95\% frequentist confidence interval can be found to be $$\hat{\theta}\rpm1.96\sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{n}}=[.0015,.016].$$ We find the likelihood interval $[\theta_l,\theta_u]$ by solving $LR(\theta)=.15$. Our likelihood interval becomes $[.0033,.0193]$. 
+
+Here, the asymptotic argument involving $W(\theta)$ is not completely appropriate, which leads to a case where the likelihood inference is not closely approximated by the frequentist interval. \newline\indent Moreover, likelihood intervals can give a summary of data where confidence intervals are not well defined or easy to compute. Consider example 1.6 once more.
+\end{exmp}
+\begin{exmp}
+Let $X\sim BIN(n,\theta)$. Observe $n=50$ and $x=0$. Here we can find a likelihood interval, but a frequentist interval would be much more difficult to compute\footnote{For the sadists, Clopper-Pearson (1934) found the exact frequentist interval is given by $$[(1+\frac{n-x+1}{xF[1-.5\alpha;2x,2(n-x+1)]})^{-1},(1+\frac{n-x}{(x+1)F[.5\alpha;2(x+1),2(n-x)]})^{-1}]$$} . Clearly, normal distribution asymptotic do not hold here. Solving $$LR(\theta)=.15$$ gives us a likelihood interval of $[0,.037]$.
+\end{exmp}
+
+\indent In summary, the likelihood function allows us to closely approximate normal confidence intervals in cases where the normal approximation is appropriate. However, the likelihood approach works even in cases where frequentist intervals are difficult to calculate. Likelihood intervals are removed from the typical issues involving confidence intervals and are a good tool for summarizing data. Interval estimation is a meaningful form of statistical inference.We will now present an example where a frequentist interval is computable, but easy to misinterpret. 
+
+\begin{exmp}
+Consider random variables $X_1,...,X_n \overset{iid}{\sim }N(\delta,1)$ we are interested in a one-sided hypothesis test $H_0:\delta=0, H_a:\delta>0$. Moreover we want a $(1-\alpha)100\%$ confidence interval for $\delta$ as a companion result. Let $\hat{\delta}=\bar{x}$ will be $\hat{\delta}\sim N(\delta,\frac{1}{n}). $  We can think of $\delta$ as representing an effect size for some comparison. For $\delta$ unrestricted, a 95\% confidence interval for $\delta$ is seen to be $$\bar{X}\rpm 1.96\frac{1}{\sqrt{n}} $$ Let $L=\bar{X}- 1.96\frac{1}{\sqrt{n}}$ and $U=\bar{X}- 1.96\frac{1}{\sqrt{n}}$. By the construction of confidence intervals $$P_\delta[L \leq \delta \leq U]=.95 $$ holds for all $\delta$. For the problem where $\delta$ is restricted to non negative values, define the truncated interval as $$ CI^{*} = \begin{cases} [L,U] &\mbox{if } L>0 \\ 
+[0,U] & \mbox{if } L<0<U\\
+\emptyset & \mbox{if } U<0
+\end{cases}$$
+Then $$P_\delta[\delta\in CI^{*}]=.95 $$ holds for all $\delta\geq0$, since $CI^{*}$ truncates only negative values of $\delta$. So, $CI^{*}$ is a 95\% confidence interval for $\delta$ satisfying frequentist properties. \newline\indent The likelihood function for the data in this problem becomes $$L(\delta)=(2\pi)^{\frac{-1}{2}}\sqrt{n}\exp\{\frac{-n}{2}(\bar{x}-\delta)^2\}, \delta\geq0 $$ If $\bar{x}>0$, then $\hat{\delta}=\bar{x}$ maximizes the likelihood and $$LR(\delta)=\exp\{\frac{-n}{2}(\delta-\bar{x})^2\},\delta\geq 0 $$ If $\bar{x}<0$, then $\hat{\delta}=0$ maxmizies the likelihood and $$LR(\delta)=\frac{\exp\{\frac{-n}{2}(\delta-\bar{x})^2\}}{\exp\{\frac{-n}{2}(\bar{x})^2\}},\delta\geq 0  $$
+\end{exmp}
+
+Let's look at how our likelihood ratio compares to the frequentist confidence interval. For simplicty we will take $n=1$. First let's see what happens when our sample difference is positive.
+
+\begin{exmp}
+Consider the case where $\bar{x}>1.96, CI^{*}=[\bar{x}-1.96,\bar{x}+1.96]$. The likelihood interval is found by solving  $$LR(\delta)=\frac{\exp\{-1/2(\delta-\bar{x})^2\}}{\exp\{-n/2(\bra{x})\}}=c$$
+Recall a previous result that when $$c= e^{-\chi^2_{\alpha,1}/2} $$ Solving a $LR(\delta)=c$ at the 95\% level gives $$e^{-1/2(\delta-\bar{x})^2}=e^{-1/2(1.96^2+\bar{x}^2)} $$ The likelihood interval is of the form $$ [0,\bar{x}+\sqrt{1.96^2+\bar{x}^2}]$$ With $\bar{x}=2$ we have
+$$\includegraphics[scale=.55]{image11.png}$$
+As you can see the bounds of the frequentist interval denoted $L$ and $U$ respectively align with our companion 95\% likelihood interval. With $\bar{x}=1$ the results are similar. $$\includegraphics[scale=.55]{image10.png}$$Our computed $CI^{*}=[0,2.96]$ and our likelihood interval $[0,2.96]$ are quanitifying the evidence identically.
+
+\end{exmp}
+
+\begin{exmp} Now let's look at the case where $\bar{x}<0$. Next, take $\bar{x}=-1$. A frequentist interval is given by $$[-1-1.96,-1+1.96]=[0,.96] $$ The likelihood interval found using the result of the previous example is $[0,1.2]$. On the other hand the frequentist interval is $[0,.96]$. From the following graph we can see the freqentist upper bound $U$ is closer to 0, resulting in an overstatement of evidence near 0. 
+$$\includegraphics[scale=.55]{image12.png}$$
+This problem becomes worse the father the point estimate is in the negative direction. Consider $\bar{x}=-2$. Following the same steps as above we arrive at a likelihood interval of $[0,.8]$. The frequentist interval does not exist by its definition 
+\includegraphics[scale=.55]{image13.png}
+$$CI^{*}=\emptyset$$
+
+
+Here the likelihood inference supports values that are at least 13 times \textit{larger} than those of the frequentist interval.
+\end{exmp}
+
+To summarize, an observed $\bar{x}=-2$ is improbable under all values of $\delta$ in the parameter space, but the frequentist can make no statement from such evidence. A likelihood approch allows us to quantify evidence in a seemingly intractable problem.
+
+\section{Bayesian Approach to likelihood inference}
+\indent To start let's recall a Bayesian prior, $$p(\theta), $$ a sampling distribution $$L(\theta)=f(x_1,...,x_n|\theta) $$ leading to a posterior distribution $$p(\theta|\text{ } \underline{x})=kp(\theta)L(\theta) $$ where $k$ is a constant of integration depending on $\underline{x}=(x_1,...,x_n)$. A Bayesian interpretation of the posterior distribution is that of a subjective probability on the location of the parameter $\theta$. The posterior distribution is a combination of historical evidence specified through $p(\theta)$, and data evidence, specified through the likelihood $L(\theta)$. A Bayesian confidence interval is such that $$P(L\leq\theta\leq U|\text{ } \underline{x})=1-\alpha $$ where probability is with respect to the fixed (but unknown) $\theta$, conditional on the information from the observed data.\newline\indent Note the distinction between a frequentist confidence interval and a Bayesian confidence interval. We can form the Bayesian confidence interval $[L,U]$ by solving $$\int_{L}^{U} p(\theta|\text{ }\underline{x})dx=1-\alpha$$ for $L$ and $U$. This may be problematic because $L$ and $U$ do not have unique solutions. This difficulty is overcome by aiming for the best Bayesian confidence interval, defined as the one with the shortest interval over all intervals with probability $1-\alpha$. This leads us to the highest density interval $$\{\theta:p(\theta|\text{ }\underline{x})>c_b\}$$ We can see that a Bayesian highest density interval matches a likelihood interval when the prior distribution is uniform. That is $p(\theta)\propto1$. In this case the inequality reduces to $$\{\theta:LR(\theta)>c\} $$ where the constant $c$ is determined according to a Bayesian probability. 
+\begin{exmp}
+Consider a binomial $\Phi$ with a standard logistic prior $$p(\Phi)=\frac{e^x}{1+e^x}$$ The posterior is then, $$P(\Phi|\text{ }\underline{x}) \propto (\frac{e^\Phi}{1+e^\Phi})^{x+1}(\frac{1}{1+e^\Phi})^{n-x+1} $$Since the likelihood interval is the same as the Bayesian interval under a uniform prior, we can see the difference in these two intervals by noting that the $P(\Phi|\text{ }\underline{x})$ under a uniform prior is $$P(\Phi|\text{ }\underline{x}) \propto (\frac{e^\Phi}{1+e^\Phi})^{x}(\frac{1}{1+e^\Phi})^{n-x} $$ 
+
+As you can see they are different by a factor of $$\frac{e^{\Phi}}{(1+e^{\Phi})^2}$$
+\end{exmp}
+
+One might conclude from the previous example that Bayesian inference is a generalized form of likelihood infernce, since after all the Bayesian and likelihood approch are identical with flat priors and different otherwise. This is not the case however, since Bayesian reasoning does not follow the invariance principle whereas likelihood inference does.\footnote{The Invariance property formally stated says that estimator of a function is the function of the estimator. For example, the MLE of a log-normal distribution are the same as that of a normal distribution fitted to the log of the data. }
+
+\begin{exmp}
+Let $X\sim BIN(n,\theta)$ and observe $n=100$, $x=80$. Let $$\Phi=log[\frac{\theta}{(1-\theta)}]$$. Consider the question, how much more likely is $\theta=.8$ than $\theta=.7$? Under the likelihood approach $$LR(\theta_1=.8)/LR(\theta_2=.2)=\frac{\theta_1^{80}(1-\theta_1)^{20}}{\theta_2^{80}*(1-\theta_2)^{20}}=13.1$$ Under a log transformation this stays the same. This illistates that our evidence didn't change, just our parametrization. This is not so under Bayesian inference. Now $$\frac{p(\Phi_1|\text{ }\underline{x})}{p(\Phi_2|\text{ }\underline{x})}=\frac{LR(\theta_1)}{LR(\theta_2)}\frac{\frac{e^{\Phi_1}}{(1+e^{\Phi_1})^2}}{\frac{e^{\Phi_2}}{(1+e^{\Phi_2})^2}}=\frac{LR(\theta_1)}{LR(\theta_2)}\frac{e^{\Phi_1}(1+e^{\Phi_2})^2}{e^{\Phi_2}(1+e^{\Phi_1})^2}}=9.98$$ 
+\end{exmp}
+
+In this particular example there is no value of $\Phi$ for which the frequentist inference is analogous to the Bayesian. A graph of the ratio shows that a Bayeisan inference will always give more conservative inferences of the parameter.
+
+So any interval estimate will be at best understate the likelihood approach by a factor of .25.
+\section{Conclusion}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+Pawitan, Yudi. In All Likelihood: Statistical Modelling and Inference Using Likelihood
+
+Clopper, C.J., Pearson, E.S. (1934). The use of confidence or fiducial limits illustrated
+in the case of the binomial. Biometrika, 26, 404–413.
+\end{document}
+
+Let $$\Phi=log[\frac{\theta}{(1-\theta)}]$$ and
+$$L^{*}(\Phi)=L(\frac{\Phi}{(1+\Phi)}) $$ 
