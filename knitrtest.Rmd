@@ -1,0 +1,27 @@
+---
+title: "Days_test"
+author: "Michael Lanier"
+date: "February 15, 2016"
+output: html_document
+---
+
+pto_daysweek=read.table(file="C:\\Users\\m.lanier\\Desktop\\test",header=TRUE)
+
+```{r, warning=FALSE, echo=FALSE, comment="",message=FALSE}
+
+
+2+2
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE, comment="",echo=FALSE}
+library(plotly)
+
+setwd("C:\\Users\\m.lanier\\Desktop")
+dat=read.table("test.txt")
+dat
+plot_ly(dat,x=dat[,2],y=dat[,3], mode = "markers")
+```
+

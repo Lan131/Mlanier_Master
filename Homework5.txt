@@ -1,0 +1,15 @@
+I. Thought Question - Do not use R
+
+a) Exercise 6.21
+
+b) Exercise 7.18
+
+II. Computational - Use R software and RSM package
+
+a) Exercise 6.2 (a to f)
+
+b) Exercise 6.4 (a to d) 
+
+c) Exercise 6.9 (a to d)
+
+d) Exercise 6.10 (a to d)

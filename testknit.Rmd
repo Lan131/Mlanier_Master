@@ -1,0 +1,41 @@
+
+```{r echo=FALSE}
+rm(list = ls())
+
+theta<- seq(.01,.3,by=.001)
+
+like<- dbinom(5,100,theta)
+like2<- like/max(like)
+
+
+
+
+
+
+```
+
+
+
+```{r simpleplot ,comment="", echo=FALSE}
+#Hello world
+plot(c(0,.3),range(c(like2)),type='n',xlab=expression(theta),ylab='Likelihood')
+text(.055,.4,'x=5',cex=.8)
+lines(theta,like2)
+text(.055,.4,'x=5',cex=.8)
+lines(theta,like2,lty='dotted',lwd=1.5)
+
+```
+
+```{r echo=FALSE, comment="", echo=FALSE, tidy=TRUE}
+theta
+```
+
+```{r kable ,comment="",echo=FALSE,warning=FALSE}
+n <- 100
+x <- rnorm(n)
+y <- 2*x + rnorm(n)
+out <- lm(y ~ x)
+library(knitr)
+kable(summary(out)$coef, digits=2)
+```
+
