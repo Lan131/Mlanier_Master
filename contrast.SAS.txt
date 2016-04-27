@@ -21,10 +21,10 @@ ods graphics / imagemap=on;
 
 proc glm data=WORK.Final plots=none;
 	class Trt;
-	model y = Trt;
+	model y = Trt / solution;
 	contrast 'A vs B' Trt 1 -1 0 ;
-
+    contrast 'AB vs C' Trt 1 1 -2 ;
 	estimate 'A vs B' Trt 1 -1 0;
-
+    estimate 'AB vs C' Trt 1 1 -2 ;
 	run;
 quit;
