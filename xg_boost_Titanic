@@ -67,7 +67,7 @@ xgb.plot.multi.trees(model = bst, feature_names = colnames(train[,-1]), features
 
 
 
-#Grid Serch for hyperparams in xgboost
+#set up Grid Serch for hyperparams in xgboost
 # set up the cross-validated hyper-parameter search
 xgb_grid_1 = expand.grid(
 nrounds = 100,
@@ -98,7 +98,7 @@ y =  is.factor(train[,1])
 # using CV to evaluate
 
 
-
+#Preform grid search
 best= xgb_train_1 = train(as.data.frame(x),y = make.names(train$Survived),
 na.action = na.pass,
 metric = "ROC",
