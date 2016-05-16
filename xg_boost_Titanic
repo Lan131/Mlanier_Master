@@ -98,7 +98,7 @@ y =  is.factor(train[,1])
 # using CV to evaluate
 
 
-#Preform grid search
+#Perform grid search
 best= xgb_train_1 = train(as.data.frame(x),y = make.names(train$Survived),
 na.action = na.pass,
 metric = "ROC",
