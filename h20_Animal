@@ -1,3 +1,8 @@
+
+
+
+
+
 library(readr) # CSV file I/O, e.g. the read_csv function
 library(h2o) #deep learning
 library(caret) #preprocessing
@@ -152,6 +157,19 @@ predictors <- setdiff(names(train), response)
 predictors
 
 
+#mboost <- h2o.gbm(training_frame=train,   
+# validation_frame=valid,   
+# x=predictors,   
+#  y=response,
+#seed=159
+#   , ntrees = 500, max_depth = 10, min_rows = 10,learn_rate=.0001,
+#  stopping_metric="misclassification",   stopping_tolerance=0.1)
+
+#summary(mboost)
+#plot(mboost)
+
+#Logloss ~1.5, validation and train sets close
+
 #Try first model
 #m1 <- h2o.deeplearning(
 #  model_id="dl_model_first", 
@@ -175,45 +193,27 @@ predictors
 #Autoencoder
 #ae_model = h2o.deeplearning(model_id="ae",x = 1:ncol(train), standardize=TRUE, training_frame = train, autoencoder = TRUE,
 #hidden = c(10, 10), epochs = 5,activation="Tanh",variable_importances=T)
+
 #Note that highly importance variables in the autoencoded model signify clusters.
+
 #h2o.varimp(ae_model)
-
-
-#Try gbm
-
-
-hyper_parameters <- list(
-ntrees=c(50,100,150),
-max_depth=c(5,10,15),
-learn_rate=c(.1,.25,.5,.75,1)
-)
-
-
-grid <- h2o.grid("gbm",  grid_id = "gbm_grid",
-hyper_params = hyper_parameters, 
-y = response, x = predictors, distribution="multinomial", seed=159,
-training_frame =train, validation_frame = valid, stopping_tolerance=0.1,
-stopping_metric="logloss")
-
-grid <- h2o.getGrid("gbm_grid",sort_by="logloss",decreasing=FALSE)
-grid
-
-grid@summary_table[1,]
-best_model <- h2o.getModel(grid@model_ids[[1]]) ## model with lowest logloss
-best_model_gbm
-plot(best_model_gbm)
-
 
 #### Random Hyper-Parameter Search
 
 hyper_params <- list(
   activation=c("Rectifier","Tanh","Maxout","RectifierWithDropout","TanhWithDropout","MaxoutWithDropout"),
-  hidden=list(c(20,20),c(50,50),c(30,30,30),c(25,25,25,25)),
+  hidden=list(c(50,20),c(100,100,100),c(25,25,25,25)),
   input_dropout_ratio=.5, #For ensemble effect see Hinton's work for explaination
-  dropout_ratio=.5,
-  rate=seq(.3,.95,by=.05),
   l1=seq(0,1e-4,1e-6),
-  l2=seq(0,1e-4,1e-6)
+  l2=seq(0,1e-4,1e-6),
+  adaptive_rate=F,                ## manually tuned learning rate
+  rate=seq(0.01,.5,by=.01) ,
+  rate_annealing=seq(0,2e-6,by= 1e-7),           
+  momentum_start=c(0.1,.2,.3),             ## manually tuned momentum
+  momentum_stable=seq(0.3,.5,by=.05) ,
+  momentum_ramp=c(1e6,1e7,1e8) ,
+  nesterov_accelerated_gradient = TRUE
+
 )
 hyper_params
 
@@ -227,11 +227,11 @@ dl_random_grid <- h2o.grid(
   validation_frame=valid, 
   x=predictors, 
   y=response,
-  epochs=10,
+  epochs=3,
   loss="CrossEntropy",
   stopping_metric="logloss",
   stopping_tolerance=1e-2,        ## stop when logloss does not improve by >=1% for 2 scoring events
-  stopping_rounds=2,
+  stopping_rounds=4,
   score_validation_samples=120, ## downsample validation set for faster scoring
   score_duty_cycle=0.025,         ## don't score more than 2.5% of the wall time
   max_w2=10,                      ## can help improve stability for Rectifier
