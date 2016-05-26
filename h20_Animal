@@ -192,11 +192,11 @@ h2o.prcomp(training_frame = train, k = 20, transform = "STANDARDIZE")
 #First 10 account for 90% of the 87% of explained variation.
 
 
-Autoencoder
+#Autoencoder
 ae_model = h2o.deeplearning(model_id="ae_model",x = 1:ncol(train), standardize=TRUE, training_frame = train, autoencoder = TRUE,
 hidden = c(20, 10,20), epochs = 1,activation="Tanh",variable_importances=T)
 
-Note that highly importance variables in the autoencoded model signify clusters.
+#Note that highly importance variables in the autoencoded model signify clusters.
 
 h2o.varimp(ae_model)
 
