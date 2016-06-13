@@ -33,4 +33,3 @@ days_waited=function(l,m,c,w)
 find_staff(23922,1690,2)
 days_waited(23922,1690,15,.0001)
 
-
