@@ -17,12 +17,17 @@ find_staff=function(l,m,w)
   
  		 if(W > w)
   		{break}
+		
   
 	}
 
 }
 
+days_waited=function(l,m,c,w)
+{
+	k=exp(-c*m*(1-l/(c*m))*w)
+	paste("Probability of waiting more than ",w," days is ", k)
+}
 
-find_staff(547,48,60)
-
-
+find_staff(150,13,40)
+days_waited(150,13,12,320)
