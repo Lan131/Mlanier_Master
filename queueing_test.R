@@ -3,7 +3,7 @@
 help.search("NewInput")
 library("queueing")
 #example(queueing)
-find_staff=function(l,m)
+find_staff=function(l,m,w)
 {
 	c=100 #initalize servers to large number
 	W=1/120 #intialize wait time to small number
@@ -15,7 +15,7 @@ find_staff=function(l,m)
   		print(c)
   		print(W)
   
- 		 if(W > 60)
+ 		 if(W > w)
   		{break}
   
 	}
@@ -23,6 +23,6 @@ find_staff=function(l,m)
 }
 
 
-find_staff(547,48)
+find_staff(547,48,60)
 
 
