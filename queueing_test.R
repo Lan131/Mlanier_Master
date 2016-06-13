@@ -3,18 +3,26 @@
 help.search("NewInput")
 library("queueing")
 #example(queueing)
-
-c=100
-W=1/120
-repeat
+find_staff=function(l,m)
 {
-  modelMMntest=QueueingModel(NewInput.MMC(lambda=36, mu=6, c=c, n=0, method=0))
-  W= modelMMntest$Wqq
-  c=c-1
-  print(c)
-  print(W)
+	c=100 #initalize servers to large number
+	W=1/120 #intialize wait time to small number
+	repeat
+	{
+  		modelMMntest=QueueingModel(NewInput.MMC(lambda=l, mu=m, c=c, n=0, method=0))
+  		W= modelMMntest$Wqq
+  		c=c-1
+  		print(c)
+  		print(W)
   
-  if(W > 1/60)
-  {break}
+ 		 if(W > 60)
+  		{break}
   
+	}
+
 }
+
+
+find_staff(547,48)
+
+
