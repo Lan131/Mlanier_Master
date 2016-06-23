@@ -1,4 +1,6 @@
 install.packages("HMM")
+install.packages("HMMCont")
+library(HMMCont)
 library(HMM)
 
 #Calculate mariginal probability of past observation given hidden states A, B and observed states L,R
@@ -23,17 +25,16 @@ print(exp(logBackwardProbabilities))
 #Baum Welch Algorithm, find long run convergence
 # Initial HMM
 hmm = initHMM(c("A","B"),c("L","R"),
-transProbs=matrix(c(.9,.1,.1,.9),2),
-emissionProbs=matrix(c(.5,.51,.5,.49),2))
+transProbs=matrix(c(.2,.1,.8,.9),2),
+emissionProbs=matrix(c(.3,.45,.7,.55),2))
 print(hmm)
 # Sequence of observation
-a = sample(c(rep("L",100),rep("R",300)))
-b = sample(c(rep("L",300),rep("R",100)))
+a = sample(c(rep("L",50),rep("R",40)))
+b = sample(c(rep("L",35),rep("R",14)))
 observation = c(a,b)
 # Baum-Welch
 bw = baumWelch(hmm,observation,10)
 print(bw$hmm)
-
 
 
 # Dishonest casino example
@@ -53,21 +54,25 @@ print(exp(logForwardProbabilities))
 
 #calaculate posterior probability
 # Initialise HMM
-hmm = initHMM(c("A","B"), c("L","R"), transProbs=matrix(c(.8,.2,.2,.8),2),
-emissionProbs=matrix(c(.6,.4,.4,.6),2))
+hmm = initHMM(c("A","B"), c("L","R"), transProbs=matrix(c(.4,.2,.6,.8),2),
+emissionProbs=matrix(c(.9,.4,..1,.6),2))
 print(hmm)
 # Sequence of observations
-observations = c("L","L","R","R")
+observations = c("L","L","R","R","L","L","R")
 # Calculate posterior probablities of the states
 posterior = posterior(hmm,observations)
 print(posterior)
 
 
-#simulate HMM
+#simulate HMM (ie predict a future sequence)
 # Initialise HMM
-hmm = initHMM(c("X","Y"),c("a","b","c"))
-# Simulate from the HMM
+hmm = initHMM(c("T","F"),c("s","ns"))
 simHMM(hmm, 100)
+# Simulate from the HMM
+j=simHMM(hmm, 100)
+as.numeric(as.factor(j$observation))
+
+
 
 #most likely path
 # Initialise HMM
@@ -75,10 +80,14 @@ hmm = initHMM(c("A","B"), c("L","R"), transProbs=matrix(c(.6,.4,.4,.6),2),
 emissionProbs=matrix(c(.6,.4,.4,.6),2))
 print(hmm)
 # Sequence of observations
-observations = c("L","L","R","R")
+observations = c("L","L","R","R","R")
 # Calculate Viterbi path
 viterbi = viterbi(hmm,observations)
 print(viterbi)
+vt = viterbiTraining(hmm,observation,5)
+vt$hmm
+
+
 
 #viterbi Algorithm, find long run convergence
 # Initial HMM
@@ -87,12 +96,32 @@ transProbs=matrix(c(.9,.1,.1,.9),2),
 emissionProbs=matrix(c(.5,.51,.5,.49),2))
 print(hmm)
 # Sequence of observation
-a = sample(c(rep("L",100),rep("R",300)))
+a = sample(c(rep("L",50),rep("R",300)))
 b = sample(c(rep("L",300),rep("R",100)))
 observation = c(a,b)
 # Viterbi-training
 vt = viterbiTraining(hmm,observation,10)
 print(vt$hmm)
 
+#initialize
 hmm=initHMM(c("X","Y"), c("a","b","c"))
 hmm
+
+Prices
+#cont HMM
+# Step-by-step analysis example.
+Returns<-logreturns(Prices) # Getting a stationary process
+Returns<-Returns*10 # Scaling the values
+hmm<-hmmsetcont(Returns) # Creating a HMM object
+print(hmm) # Checking the initial parameters
+for(i in 1:6){hmm<-baumwelchcont(hmm)} # Baum-Welch is
+# executed 6 times and results are accumulated
+print(hmm) # Checking the accumulated parameters
+summary(hmm) # Getting more detailed information
+hmmcomplete<-viterbicont(hmm) # Viterbi execution
+statesDistributionsPlot(hmmcomplete, sc=10) # PDFs of
+# the whole data set and two states are plotted
+par(mfrow=c(2,1))
+plot(hmmcomplete, Prices, ylabel="Price")
+plot(hmmcomplete, ylabel="Returns") # the revealed
+# Markov chain and the observations are plotted
