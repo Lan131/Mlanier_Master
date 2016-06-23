@@ -1,0 +1,33 @@
+install.packages("HMM")
+library(HMM)
+
+#Calculate probability of observation given hidden states A, B and observed states L,R
+# Initialise HMM
+hmm = initHMM(c("A","B"), c("L","R"), transProbs=matrix(c(.8,.2,.2,.8),2),
+emissionProbs=matrix(c(.6,.4,.4,.6),2))
+print(hmm)
+# Sequence of observations
+observations = c("L","L","R","R")
+# Calculate backward probablities
+logBackwardProbabilities = backward(hmm,observations)
+print(exp(logBackwardProbabilities))
+
+
+#Baum Welch Algorithm, find long run convergence
+# Initial HMM
+hmm = initHMM(c("A","B"),c("L","R"),
+transProbs=matrix(c(.9,.1,.1,.9),2),
+emissionProbs=matrix(c(.5,.51,.5,.49),2))
+print(hmm)
+# Sequence of observation
+a = sample(c(rep("L",100),rep("R",300)))
+b = sample(c(rep("L",300),rep("R",100)))
+observation = c(a,b)
+# Baum-Welch
+bw = baumWelch(hmm,observation,10)
+print(bw$hmm)
+
+
+
+# Dishonest casino example
+dishonestCasino()
