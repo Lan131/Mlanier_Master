@@ -29,7 +29,6 @@ days_waited=function(l,m,c,w)
 	k=exp(-c*m*(1-l/(c*m))*w)
 	paste("Probability of waiting more than ",w," periods is approx ", k)
 }
-
+#l arrival, m service c employees w wait
 find_staff(23922,1690,2)
 days_waited(23922,1690,15,.0001)
-
