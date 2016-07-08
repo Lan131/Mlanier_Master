@@ -7,18 +7,16 @@ n=100
 
 plot(fit)
 
-
-#Diagnostic Plots
-require(ggplot2)
 diagPlot<-function(model){
     p1<-ggplot(model, aes(.fitted, .resid))+geom_point()
     p1<-p1+stat_smooth(method="loess")+geom_hline(yintercept=0, col="red", linetype="dashed")
     p1<-p1+xlab("Fitted values")+ylab("Residuals")
     p1<-p1+ggtitle("Residual vs Fitted Plot")+theme_bw()
-    
-    p2<-ggplot(model, aes(qqnorm(.stdresid)[[1]], .stdresid))+geom_point(na.rm = TRUE)
-    p2<-p2+geom_abline(aes(qqline(.stdresid)))+xlab("Theoretical Quantiles")+ylab("Standardized Residuals")
+       
+    p2<-ggplot(fit, aes(qqnorm(.stdresid)[[1]], .stdresid))+geom_point(na.rm = TRUE)
+    p2<-p2+geom_abline()+xlab("Theoretical Quantiles")+ylab("Standardized Residuals")
     p2<-p2+ggtitle("Normal Q-Q")+theme_bw()
+
     
     p3<-ggplot(model, aes(.fitted, sqrt(abs(.stdresid))))+geom_point(na.rm=TRUE)
     p3<-p3+stat_smooth(method="loess", na.rm = TRUE)+xlab("Fitted Value")
@@ -44,9 +42,15 @@ diagPlot<-function(model){
     
     return(list(rvfPlot=p1, qqPlot=p2, sclLocPlot=p3, cdPlot=p4, rvlevPlot=p5, cvlPlot=p6))
 }
-
 diagPlts=diagPlot(fit)
-diagPlts
+
+
+
+
+lbry<-c("grid", "gridExtra")
+lapply(lbry, require, character.only=TRUE, warn.conflicts = FALSE, quietly = TRUE)
+do.call(grid.arrange, c(diagPlts, top="Diagnostic Plots", ncol=3))
+
 
 ####Correlation Test for Normality
 resi = fit$resi
