@@ -13,7 +13,7 @@ diagPlot<-function(model){
     p1<-p1+xlab("Fitted values")+ylab("Residuals")
     p1<-p1+ggtitle("Residual vs Fitted Plot")+theme_bw()
        
-    p2<-ggplot(fit, aes(qqnorm(.stdresid)[[1]], .stdresid))+geom_point(na.rm = TRUE)
+    p2<-ggplot(model, aes(qqnorm(.stdresid)[[1]], .stdresid))+geom_point(na.rm = TRUE)
     p2<-p2+geom_abline()+xlab("Theoretical Quantiles")+ylab("Standardized Residuals")
     p2<-p2+ggtitle("Normal Q-Q")+theme_bw()
 
