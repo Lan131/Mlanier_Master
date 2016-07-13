@@ -9,9 +9,14 @@ library(gridExtra)
 library(grid)
 setwd("C:\\Users\\0019091\\Desktop")
 getwd()
+filename=readline(prompt="Enter file name: ")
+filename= "20160708 Pending Inventory.xlsx"
 
 
-data_IA=read.xlsx("20160708 Pending Inventory.xlsx",sheet = 1, startRow = 2, colNames = TRUE)
+
+
+
+data_IA=read.xlsx(filename,sheet = 1, startRow = 2, colNames = TRUE)
 data_IA=mutate(data_IA,State="IA")
 
 c1=count(data_IA,code=PROC)
@@ -20,7 +25,7 @@ ggplot(c1, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c1=mutate(c1,State="IA")
 
-data_KS=read.xlsx("20160708 Pending Inventory.xlsx",sheet = 2, startRow = 2, colNames = TRUE)
+data_KS=read.xlsx(filename,sheet = 2, startRow = 2, colNames = TRUE)
 data_KS=mutate(data_KS,State="KS")
 
 c2=count(data_KS,code=PROC)
@@ -29,7 +34,7 @@ ggplot(c2, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c2=mutate(c2,State="KS")
 
-data_MI=read.xlsx("20160708 Pending Inventory.xlsx",sheet = 3, startRow = 2, colNames = TRUE)
+data_MI=read.xlsx(filename,sheet = 3, startRow = 2, colNames = TRUE)
 data_MI=mutate(data_MI,State="MI")
 
 c3=count(data_MI,code=PROC)
@@ -38,7 +43,7 @@ ggplot(c, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c3=mutate(c3,State="MI")
 
-data_MO=read.xlsx("20160708 Pending Inventory.xlsx",sheet = 4, startRow = 2, colNames = TRUE)
+data_MO=read.xlsx(filename,sheet = 4, startRow = 2, colNames = TRUE)
 data_MO=mutate(data_MO,State="MO")
 
 c4=count(data_MO,code=PROC)
@@ -47,7 +52,7 @@ ggplot(c, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c4=mutate(c4,State="MI")
 
-data_NE=read.xlsx("20160708 Pending Inventory.xlsx",sheet = 5, startRow = 2, colNames = TRUE)
+data_NE=read.xlsx(filename,sheet = 5, startRow = 2, colNames = TRUE)
 data_NE=mutate(data_NE,State="NE")
 
 c5=count(data_NE,code=PROC)
@@ -56,7 +61,7 @@ ggplot(c, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c5=mutate(c5,State="NE")
 
-data_IN=read.xlsx("20160708 Pending Inventory.xlsx",sheet = 6, startRow = 2, colNames = TRUE)
+data_IN=read.xlsx(filename,sheet = 6, startRow = 2, colNames = TRUE)
 data_IN=mutate(data_IN,State="IN")
 
 c6=count(data_IN,code=PROC)
@@ -98,9 +103,14 @@ final
 rownames(final) <- 1:nrow(final)
 final
 
+
+
 today=paste("Unusual Procedure Codes " ,Sys.Date(),".pdf",sep="")
 today
-
+xl=paste("Unusual Procedure Codes " ,Sys.Date(),".xlsx",sep="")
+cv=paste("Unusual Procedure Codes " ,Sys.Date(),".csv",sep="")
+write.xlsx(file=xl,final,colNames = TRUE, borders = "columns")
+write.csv(file=cv,final)
 maxrow = 30
 npages = ceiling(nrow(final)/maxrow)
 
