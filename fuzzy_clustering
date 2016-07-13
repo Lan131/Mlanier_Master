@@ -1,0 +1,53 @@
+library(faraway)
+
+#install.packages("cluster")
+library(cluster)
+
+x <- rbind(cbind(rnorm(10,0,0.5), rnorm(10,0,0.5)),
+cbind(rnorm(15,5,0.5), rnorm(15,5,0.5)))
+head(x)
+clusplot(pam(x, 2))
+## add noise, and try again :
+x4 <- cbind(x, rnorm(25), rnorm(25))
+clusplot(pam(x4, 2))
+
+
+data(agriculture)
+## Example 1 in ref:
+## Dissimilarities using Euclidean metric and without standardization
+d.agr <- daisy(agriculture, metric = "euclidean", stand = FALSE)
+d.agr
+as.matrix(d.agr)[,"DK"] # via as.matrix.dist(.)
+## compare with
+as.matrix(daisy(agriculture, metric = "gower"))
+data(flower)
+## Example 2 in ref
+summary(dfl1 <- daisy(flower, type = list(asymm = 3)))
+summary(dfl2 <- daisy(flower, type = list(asymm = c(1, 3), ordratio = 7)))
+## this failed earlier:
+summary(dfl3 <- daisy(flower,
+type = list(asymm = c("V1", "V3"), symm= 2,
+ordratio= 7, logratio= 8)))
+
+
+
+## generate 10+15 objects in two clusters, plus 3 objects lying
+## between those clusters.
+x <- rbind(cbind(rnorm(10, 0, 0.5), rnorm(10, 0, 0.5)),
+cbind(rnorm(15, 5, 0.5), rnorm(15, 5, 0.5)),
+cbind(rnorm( 3,3.2,0.5), rnorm( 3,3.2,0.5)))
+fannyx <- fanny(x, 3)
+## Note that observations 26:28 are "fuzzy" (closer to # 2):
+fannyx
+summary(fannyx)
+plot(fannyx)
+(fan.x.15 <- fanny(x, 3, memb.exp = 1.5)) # 'crispier' for obs. 26:28
+(fanny(x, 3, memb.exp = 3)) # more fuzzy in general
+
+
+data(ruspini)
+f4 <- fanny(ruspini, 4)
+stopifnot(rle(f4$clustering)$lengths == c(20,23,17,15))
+plot(f4, which = 1)
+## Plot similar to Figure 6 in Stryuf et al (1996)
+plot(fanny(ruspini, 5))
