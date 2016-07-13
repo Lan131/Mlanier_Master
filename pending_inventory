@@ -5,8 +5,8 @@ library(dplyr)
 library(ggplot2)
 library(sqldf)
 library(PASWR)
-
-
+library(gridExtra)
+library(grid)
 setwd("C:\\Users\\0019091\\Desktop")
 getwd()
 
@@ -97,3 +97,15 @@ final
 #renumber rows
 rownames(final) <- 1:nrow(final)
 final
+
+today=paste("Unusual Procedure Codes " ,Sys.Date(),".pdf",sep="")
+today
+
+maxrow = 30
+npages = ceiling(nrow(final)/maxrow)
+
+pdf(today, height=11, width=8.5)
+for (i in 1:npages) {idx = seq(1+((i-1)*maxrow), i*maxrow)
+ grid.newpage()
+ grid.table(final[idx, ])}
+ dev.off()
