@@ -9,7 +9,7 @@ library(gridExtra)
 library(grid)
 setwd("C:\\Users\\0019091\\Desktop")
 getwd()
-filename=readline(prompt="Enter file name: ")
+#filename=readline(prompt="Enter file name: ")
 filename= "20160708 Pending Inventory.xlsx"
 
 
@@ -18,58 +18,95 @@ filename= "20160708 Pending Inventory.xlsx"
 
 data_IA=read.xlsx(filename,sheet = 1, startRow = 2, colNames = TRUE)
 data_IA=mutate(data_IA,State="IA")
-
+head(data_IA)
 c1=count(data_IA,code=PROC)
+c1_audit=count(data_IA,audit=CCN)
+c1_pro=count(data_IA,provider=BPR)
 summary(c1)
+summary(c1_audit)
 ggplot(c1, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
+
+ggplot(c_audit, aes(n)) +
+  geom_histogram(binwidth=1,color="blue")
+
+ggplot(c_pro, aes(n)) +
+  geom_histogram(binwidth=1,color="blue")
+
 c1=mutate(c1,State="IA")
+c1_audit=mutate(c1_audit,State="IA")
+c1_pro=mutate(c1_pro,State="IA")
+
 
 data_KS=read.xlsx(filename,sheet = 2, startRow = 2, colNames = TRUE)
 data_KS=mutate(data_KS,State="KS")
 
 c2=count(data_KS,code=PROC)
+c2_audit=count(data_KS,audit=CCN)
+c2_pro=count(data_KS,provider=BPR)
 summary(c2)
 ggplot(c2, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c2=mutate(c2,State="KS")
+c2_audit=mutate(c2_audit,State="KS")
+c2_pro=mutate(c2_pro,State="KS")
+
 
 data_MI=read.xlsx(filename,sheet = 3, startRow = 2, colNames = TRUE)
 data_MI=mutate(data_MI,State="MI")
 
 c3=count(data_MI,code=PROC)
+c3_audit=count(data_MI,audit=CCN)
+c3_pro=count(data_MI,provider=BPR)
 summary(c3)
 ggplot(c, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c3=mutate(c3,State="MI")
+c3_audit=mutate(c3_audit,State="MI")
+c3_pro=mutate(c3_pro,State="MI")
+
 
 data_MO=read.xlsx(filename,sheet = 4, startRow = 2, colNames = TRUE)
 data_MO=mutate(data_MO,State="MO")
 
 c4=count(data_MO,code=PROC)
+c4_audit=count(data_MO,audit=CCN)
+c4_pro=count(data_MO,provider=BPR)
 summary(c4)
-ggplot(c, aes(n)) +
+ggplot(c4, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
-c4=mutate(c4,State="MI")
+c4=mutate(c4,State="MO")
+c4_audit=mutate(c4_audit,State="MO")
+c4_pro=mutate(c4_pro,State="MO")
 
 data_NE=read.xlsx(filename,sheet = 5, startRow = 2, colNames = TRUE)
 data_NE=mutate(data_NE,State="NE")
 
 c5=count(data_NE,code=PROC)
+c5_audit=count(data_NE,audit=CCN)
+c5_pro=count(data_NE,provider=BPR)
 summary(c5)
-ggplot(c, aes(n)) +
+ggplot(c5, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c5=mutate(c5,State="NE")
+c5_audit=mutate(c5_audit,State="NE")
+c5_pro=mutate(c5_pro,State="NE")
 
 data_IN=read.xlsx(filename,sheet = 6, startRow = 2, colNames = TRUE)
 data_IN=mutate(data_IN,State="IN")
 
 c6=count(data_IN,code=PROC)
+c6_audit=count(data_IN,audit=CCN)
+c6_pro=count(data_IN,provider=BPR)
+
 
 summary(c6)
-ggplot(c, aes(n)) +
+ggplot(c6, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 c6=mutate(c6,State="IN")
+c6_audit=mutate(c6_audit,State="IN")
+c6_pro=mutate(c6_pro,State="IN")
+
 
 
 data=rbind(data_IA,data_KS,data_MI,data_MO,data_NE,data_IN)
@@ -78,21 +115,37 @@ head(data)
 
 
 c=count(data,code=PROC)
+c_audit=count(data,audit=CCN)
+c_pro=count(data,provider=BPR)
+
 head(c)
 summary(c)
 ggplot(c, aes(n)) +
   geom_histogram(binwidth=1,color="blue")
 
+head(c_audit)
+summary(c_audit)
+
+
+head(c_pro)
+summary(c_pro)
 
 Counts=rbind(c1,c2,c3,c4,c5,c6)
 Counts
 head(Counts)
-#create query
+
+Counts_audit=rbind(c1_audit,c2_audit,c3_audit,c4_audit,c5_audit,c6_audit)
+Counts_pro=rbind(c1_pro,c2_pro,c3_pro,c4_pro,c5_pro,c6_pro)
+
+
+#create query codes
 query=sqldf('select PROC, count(*), State from data group by State, PROC having count(*)>100 order by count(*) desc ')
 query
 #find upper 10th precentile
 q=quantile(query[,2],.90)
 l=filter(query,"count(*)" > q)
+
+
 
 #remove duplicated proc code rows
 final <- subset(l, !duplicated(l[,1])) 
@@ -105,7 +158,7 @@ final
 
 
 
-today=paste("Unusual Procedure Codes " ,Sys.Date(),".pdf",sep="")
+today=paste("Unusual Procedure Codes upper 10th precentile " ,Sys.Date(),".pdf",sep="")
 today
 xl=paste("Unusual Procedure Codes " ,Sys.Date(),".xlsx",sep="")
 cv=paste("Unusual Procedure Codes " ,Sys.Date(),".csv",sep="")
@@ -119,3 +172,88 @@ for (i in 1:npages) {idx = seq(1+((i-1)*maxrow), i*maxrow)
  grid.newpage()
  grid.table(final[idx, ])}
  dev.off()
+
+
+
+
+
+
+
+head(data)
+
+#create query audits
+query=sqldf('select CCN, count(*), State from data group by State, CCN having count(*)>1 order by count(*) desc ')
+query
+#find upper 1th precentile
+q=quantile(query[,2],.99)
+l=filter(query,query[,2] > q)
+l
+#remove duplicated audit rows
+final <- subset(l, !duplicated(l[,1])) 
+#remove na proc code
+final <- subset(l, !is.na(l[,1]) )
+final
+#renumber rows
+rownames(final) <- 1:nrow(final)
+final
+
+
+
+
+today=paste("Unusual Audit Codes upper 1st precentile " ,Sys.Date(),".pdf",sep="")
+today
+xl=paste("Unusual Procedure Codes " ,Sys.Date(),".xlsx",sep="")
+cv=paste("Unusual Procedure Codes " ,Sys.Date(),".csv",sep="")
+write.xlsx(file=xl,final,colNames = TRUE, borders = "columns")
+write.csv(file=cv,final)
+maxrow = 30
+npages = ceiling(nrow(final)/maxrow)
+
+pdf(today, height=11, width=8.5)
+for (i in 1:npages) {idx = seq(1+((i-1)*maxrow), i*maxrow)
+ grid.newpage()
+ grid.table(final[idx, ])}
+ dev.off()
+
+
+
+
+
+#create query p
+query=sqldf('select BPR, count(*), State from data group by State, BPR having count(*)>1 order by count(*) desc ')
+query
+#find upper 5th precentile
+q=quantile(query[,2],.99)
+l=filter(query,query[,2] > q)
+l
+#remove duplicated audit rows
+final <- subset(l, !duplicated(l[,1])) 
+#remove na proc code
+final <- subset(l, !is.na(l[,1]) )
+final
+#renumber rows
+rownames(final) <- 1:nrow(final)
+final
+
+
+
+
+today=paste("Unusual Provider Codes upper 1st precentile " ,Sys.Date(),".pdf",sep="")
+today
+xl=paste("Unusual Procedure Codes " ,Sys.Date(),".xlsx",sep="")
+cv=paste("Unusual Procedure Codes " ,Sys.Date(),".csv",sep="")
+write.xlsx(file=xl,final,colNames = TRUE, borders = "columns")
+write.csv(file=cv,final)
+maxrow = 30
+npages = ceiling(nrow(final)/maxrow)
+
+pdf(today, height=11, width=8.5)
+for (i in 1:npages) {idx = seq(1+((i-1)*maxrow), i*maxrow)
+ grid.newpage()
+ grid.table(final[idx, ])}
+ dev.off()
+
+
+
+
+
