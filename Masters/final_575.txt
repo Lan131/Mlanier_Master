@@ -1,0 +1,194 @@
+---
+title: "Final Project Stat 575"
+author: "Michael Lanier"
+date: "July 26, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Abstract
+
+####Introduction
+The purpose of this project is to use the Metropolis algorithm to sample from a Cauchy Distribution using various proposal distirbutions. We also seek to examine the relationship between the converage of the Markov chain and the variance of the proposal distribution.
+
+##Analysis
+First we will define variables to be used in the simulation.
+
+```{r}
+set.seed(124)
+nsim=10000
+cauchy=function(x)
+{
+  1/(1+x^2)
+}
+
+
+```
+
+##Run Metropolis Simulation using Normal proposal
+```{r}
+x=vector(mode="numeric",length=nsim)
+x[1]=runif(1) # initialize the chain from the stationary
+for (i in 2:nsim){
+  y=rnorm(1,0,2) # candidate normal
+  u=runif(1)
+  alpha=min(1,cauchy(y)*dnorm(x[i-1],0,2)/(cauchy(x[i-1])*dnorm(y,0,2)))
+  if(u<=alpha)
+  {
+    x[i]=y
+  }else x[i]=x[i-1]
+}
+```
+
+##Examine data
+```{r}
+library(ggplot2)
+qplot(1:10000,x[1:10000],xlab="Index",ylab="Value")
+```
+
+
+#####This data does not appear to have any strange patters in it that would imply heavy autocorrelation.
+```{r}
+hist(x, col="grey")
+
+# draw a density line plot
+plot(density(x), bty="l",main="95% density with Normal Proposal")
+
+
+
+# add vertical lines for the median and 95th percentile
+abline(v=quantile(x, c(0.5, 0.95)), lty=2:3)
+```
+
+#####This data appears to be Cauchy distributed. 
+```{r}
+#Normality plot
+qqnorm(x)
+qqline(x)
+```
+
+#####This data is has heavy tails but appears symmetric just like the Cauchy function. This provides further evidence that the Metropolis Algorithm has generated Cauchy distributed data.
+```{r}
+TS=ts(data = x, start = 1, end = nsim, frequency = 1)
+
+acf(TS, lag.max = NULL,type = c("correlation"),plot = TRUE)
+
+```
+
+#####This Autocorrelation plot shows that the data is correlated. 
+
+
+
+####Run Metropolis Algorithm using t distibution Proposal
+```{r}
+
+x[1]=runif(1) # initialize the chain from the stationary
+for (i in 2:nsim){
+y=rt(1,20) # candidate normal
+u=runif(1)
+alpha=min(1,cauchy(y)*dt(x[i-1],20)/(cauchy(x[i-1])*dt(y,20)))
+if(u<=alpha)
+{
+x[i]=y
+}else x[i]=x[i-1]
+}
+```
+
+```{r}
+
+qplot(9500:10000,x[9500:10000],xlab="Index",ylab="Value")
+hist(x, col="grey")
+
+# draw a density line plot
+plot(density(x), bty="l",main="95% density with Normal Proposal")
+
+
+
+# add vertical lines for the median and 95th percentile
+abline(v=quantile(x, c(0.5, 0.95)), lty=2:3)
+```
+
+#####This data does not appear to be Cauchy distributed. It is bimodal.
+```{r}
+#Normality plot
+qqnorm(x)
+qqline(x)
+```
+
+#####The data has two major tails.
+
+
+```{r}
+TS=ts(data = x, start = 1, end = nsim, frequency = 1)
+plot(TS)
+acf(TS, lag.max = NULL,type = c("correlation"),plot = TRUE)
+
+```
+
+#####The issue appears to be that the data is extremely correlated. So that an extreme value on the tail would cause the Algorithm to continutally sample from that area until some large burn in time.
+
+
+```{r}
+#Define function
+metro_cauchy_norm=function(s,nsim)
+{ x=vector(mode="numeric",length=nsim)
+x[1]=runif(1) # initialize the chain from the stationary
+for (i in 2:nsim){
+y=rnorm(1,0,s) # candidate normal
+u=runif(1)
+alpha=min(1,cauchy(y)*dnorm(x[i-1],0,s)/(cauchy(x[i-1])*dnorm(y,0,s)))
+if(u<=alpha)
+{
+x[i]=y
+}else x[i]=x[i-1]
+}
+
+TS=ts(data = x, start = 1, end = 1000, frequency = 1)
+H=plot(density(x), bty="l",main=paste("95% density with Normal(0,",s,")"))
+curve(dcauchy(x,location=0, scale=1), 
+          col="darkblue", lwd=2, add=TRUE, yaxt="n")
+V=acf(TS, lag.max = NULL,type = c("correlation"),plot = TRUE)
+L=list(c(TS,V,H))
+L=list(c(H))
+return(L)
+}
+```
+
+###How does the varience in the proposal function effect the Metropolis Algorithm?
+```{r}
+for(i in 1:4)
+{
+metro_cauchy_norm(2*i,10000)
+
+}
+```
+
+#####A large varience in the propsal function reduces autocorrelation and the data generated is approximatly Cauchy Distributed.
+
+
+
+###How does the number of simulated runs effect the Metropolis Algorithm with small varience?
+```{r}
+for(i in 1:4)
+{
+metro_cauchy_norm(.5,i*200)
+
+}
+```
+
+#####With a small varience in the proposal function means that the density of the data is slowly converging to the Cauchy distribution.
+
+
+###How does the number of simulated runs effect the Metropolis Algorithm with larger varience?
+```{r}
+for(i in 1:4)
+{
+metro_cauchy_norm(10,i*200)
+
+}
+```
+
+#####If the varience is too large the density of the data converges slowly.
