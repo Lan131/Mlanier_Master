@@ -9,12 +9,40 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+Limitations of study and conclusion: Describe any limitations of your study and how they might be overcome and provide brief conclusions about the results of your study.
+
+
 ####Abstract
+The Metropolis algorithm is a popular way of generating random samples of hard to sample distributions. This project uses the Metropolis algorithm to generate data from the Cauchy distribution. We then seek to find the relationship between the variance of the propsal function and the converage properties of the Metropolis algorithm; notably the burn-in time and the autocorrelation of the generated series. Finally, further questions related to the varience size and its relation to Stocastic Gradient Descent and Adaptive sampling are examined and an Adaptive Metropolis method presented.
+
 
 ####Introduction
 The purpose of this project is to use the Metropolis algorithm to sample from a Cauchy Distribution using various proposal distirbutions. We also seek to examine the relationship between the converage of the Markov chain and the variance of the proposal distribution.
 
 ##Analysis
+The Metropolis Algorithm for a Cauchy- Normal can be defined as such:
+
+1. Let f be the pdf for X~Cauchy(0,1). Let g be the pdf for Y~N(0,Var)
+
+2. Generate X0 from a distribution g.
+3. Repeat (until the chain has converged to a stationary distribution according to some criteria):
+a. Generate Y from a distribution g(·|Xt).
+b. Generate U from Uniform(0, 1).
+c. If
+U < (f(Y )g(Xt|Y ))/(f(Xt)g(Y |Xt))
+accept Y and set Xt+1 = Y ; otherwise set Xt+1 = Xt.
+9
+d. Increment t.
+• Note in step (3c) the candidate point Y is accepted with probability
+alpha(Xt, Y ) = min(1,(f(Y )g(Xt|Y ))/(f(Xt)g(Y |Xt)))
+
+Note since g is symmetric:
+alpha(Xt, Y ) = min(1,f(Y )/f(Xt))
+
+
+
+##Results
 First we will define variables to be used in the simulation.
 
 ```{r}
