@@ -5,16 +5,12 @@ date: "July 26, 2016"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 
 Limitations of study and conclusion: Describe any limitations of your study and how they might be overcome and provide brief conclusions about the results of your study.
 
 
 ####Abstract
-The Metropolis algorithm is a popular way of generating random samples of hard to sample distributions. This project uses the Metropolis algorithm to generate data from the Cauchy distribution. We then seek to find the relationship between the variance of the propsal function and the converage properties of the Metropolis algorithm; notably the burn-in time and the autocorrelation of the generated series. Finally, further questions related to the varience size and its relation to Stocastic Gradient Descent and Adaptive sampling are examined and an Adaptive Metropolis method presented.
+The Metropolis algorithm is a popular way of generating random samples of hard to sample distributions. This project uses the Metropolis algorithm to generate data from the Cauchy distribution. We then seek to find the relationship between the variance of the propsal function and the converage properties of the Metropolis algorithm; notably the burn-in time and the autocorrelation of the generated series. Finally, further questions related to the varience size will be asked.
 
 
 ####Introduction
@@ -22,12 +18,12 @@ The purpose of this project is to use the Metropolis algorithm to sample from a 
 
 ##Analysis
 The Metropolis Algorithm for a Cauchy- Normal can be defined as such:
-
-1. Let f be the pdf for X~Cauchy(0,1). Let g be the pdf for Y~N(0,Var)
+  
+  1. Let f be the pdf for X~Cauchy(0,1). Let g be the pdf for Y~N(0,Var)
 
 2. Generate X0 from a distribution g.
 3. Repeat (until the chain has converged to a stationary distribution according to some criteria):
-a. Generate Y from a distribution g(·|Xt).
+  a. Generate Y from a distribution g(·|Xt).
 b. Generate U from Uniform(0, 1).
 c. If
 U < (f(Y )g(Xt|Y ))/(f(Xt)g(Y |Xt))
@@ -38,7 +34,7 @@ d. Increment t.
 alpha(Xt, Y ) = min(1,(f(Y )g(Xt|Y ))/(f(Xt)g(Y |Xt)))
 
 Note since g is symmetric:
-alpha(Xt, Y ) = min(1,f(Y )/f(Xt))
+  alpha(Xt, Y ) = min(1,f(Y )/f(Xt))
 
 
 
@@ -46,7 +42,7 @@ alpha(Xt, Y ) = min(1,f(Y )/f(Xt))
 First we will define variables to be used in the simulation.
 
 ```{r}
-set.seed(124)
+set.seed(1234)
 nsim=10000
 cauchy=function(x)
 {
@@ -59,7 +55,7 @@ cauchy=function(x)
 ##Run Metropolis Simulation using Normal proposal
 ```{r}
 x=vector(mode="numeric",length=nsim)
-x[1]=runif(1) # initialize the chain from the stationary
+x[1]=rnorm(1,0,2) # initialize the chain from the stationary
 for (i in 2:nsim){
   y=rnorm(1,0,2) # candidate normal
   u=runif(1)
@@ -93,12 +89,30 @@ abline(v=quantile(x, c(0.5, 0.95)), lty=2:3)
 
 #####This data appears to be Cauchy distributed. 
 ```{r}
-#Normality plot
-qqnorm(x)
-qqline(x)
+#qqplot
+par(mfrow = c(2, 2))
+a <- ppoints(100)
+QR <- qcauchy(a)
+Qx <- quantile(x, a)
+qqplot(QR, Qx, xlab ="Cauchy Quantiles",
+       ylab ="Sample Quantiles",
+       main = "Original accepted values")
+abline(0,1, col=2)
+b <- 100 #discard the burnin sample
+y <- x[b: nsim]
+Qy <- quantile(y, a)
+qqplot(QR, Qy, xlab="Cauchy Quantiles",
+       ylab ="Sample Quantiles",
+       main = "Minus the burnin sample")
+abline(0, 1, col = 2)
 ```
 
-#####This data is has heavy tails but appears symmetric just like the Cauchy function. This provides further evidence that the Metropolis Algorithm has generated Cauchy distributed data.
+
+#Test of goodness of fit
+
+
+We reject the null hypothesis that the data is not Cauchy distributed.
+#####This data is has heavy tails but appears symmetric just like the Cauchy function. 
 ```{r}
 TS=ts(data = x, start = 1, end = nsim, frequency = 1)
 
@@ -113,15 +127,15 @@ acf(TS, lag.max = NULL,type = c("correlation"),plot = TRUE)
 ####Run Metropolis Algorithm using t distibution Proposal
 ```{r}
 
-x[1]=runif(1) # initialize the chain from the stationary
+x[1]=rnorm(1,0,2)# initialize the chain from the stationary
 for (i in 2:nsim){
-y=rt(1,20) # candidate normal
-u=runif(1)
-alpha=min(1,cauchy(y)*dt(x[i-1],20)/(cauchy(x[i-1])*dt(y,20)))
-if(u<=alpha)
-{
-x[i]=y
-}else x[i]=x[i-1]
+  y=rt(1,20) # candidate normal
+  u=runif(1)
+  alpha=min(1,cauchy(y)*dt(x[i-1],20)/(cauchy(x[i-1])*dt(y,20)))
+  if(u<=alpha)
+  {
+    x[i]=y
+  }else x[i]=x[i-1]
 }
 ```
 
@@ -140,10 +154,25 @@ abline(v=quantile(x, c(0.5, 0.95)), lty=2:3)
 ```
 
 #####This data does not appear to be Cauchy distributed. It is bimodal.
+
+#qq plot
+
 ```{r}
-#Normality plot
-qqnorm(x)
-qqline(x)
+par(mfrow = c(1, 2))
+a <- ppoints(100)
+QR <- qcauchy(a)
+Qx <- quantile(x, a)
+qqplot(QR, Qx, xlab ="Cauchy Quantiles",
+       ylab ="Sample Quantiles",
+       main = "Original accepted values")
+abline(0,1, col=2)
+b <- 100 #discard the burnin sample
+y <- x[b: nsim]
+Qy <- quantile(y, a)
+qqplot(QR, Qy, xlab="Cauchy Quantiles",
+       ylab ="Sample Quantiles",
+       main = "Minus the burnin sample")
+abline(0, 1, col = 2)
 ```
 
 #####The data has two major tails.
@@ -156,55 +185,86 @@ acf(TS, lag.max = NULL,type = c("correlation"),plot = TRUE)
 
 ```
 
+#Test of goodness of fit
+```{r}
+ks.test(x,"cauchy")
+
+
+```
+
+The chi square goodness of fit test indicates that the data is a good fit.
+
 #####The issue appears to be that the data is extremely correlated. So that an extreme value on the tail would cause the Algorithm to continutally sample from that area until some large burn in time.
 
 
 ```{r}
 #Define function
-metro_cauchy_norm=function(s,nsim)
+metro_cauchy_norm=function(s,nsim,burnin)
 { x=vector(mode="numeric",length=nsim)
-x[1]=runif(1) # initialize the chain from the stationary
+x[1]=rnorm(1,0,s)# initialize the chain from the stationary
 for (i in 2:nsim){
-y=rnorm(1,0,s) # candidate normal
-u=runif(1)
-alpha=min(1,cauchy(y)*dnorm(x[i-1],0,s)/(cauchy(x[i-1])*dnorm(y,0,s)))
-if(u<=alpha)
-{
-x[i]=y
-}else x[i]=x[i-1]
+  y=rnorm(1,0,s) # candidate normal
+  u=runif(1)
+  alpha=min(1,cauchy(y)*dnorm(x[i-1],0,s)/(cauchy(x[i-1])*dnorm(y,0,s)))
+  if(u<=alpha)
+  {
+    x[i]=y
+  }else x[i]=x[i-1]
 }
 
 TS=ts(data = x, start = 1, end = 1000, frequency = 1)
 H=plot(density(x), bty="l",main=paste("95% density with Normal(0,",s,")"))
 curve(dcauchy(x,location=0, scale=1), 
-          col="darkblue", lwd=2, add=TRUE, yaxt="n")
+      col="darkblue", lwd=2, add=TRUE, yaxt="n")
 V=acf(TS, lag.max = NULL,type = c("correlation"),plot = TRUE)
+
+
+a <- ppoints(1000)
+QR <- qcauchy(a)
+Qx <- quantile(x, a)
+
+
+y <- x[burnin: nsim]
+Qy <- quantile(y, a)
+QMB=qqplot(QR, Qy, xlab="Cauchy Quantiles",
+       ylab ="Sample Quantiles",
+       main = "Minus the burnin sample")
+abline(0, 1, col = 2)
+
+
 L=list(c(TS,V,H))
-L=list(c(H))
+L=list(c(H,QMB,x))
 return(L)
 }
 ```
 
 ###How does the varience in the proposal function effect the Metropolis Algorithm?
 ```{r}
+
 for(i in 1:4)
 {
-metro_cauchy_norm(2*i,10000)
-
+  par(mfrow = c(1, 3))
+  metro_cauchy_norm(2*i,10000,1000)
+  
 }
 ```
 
-#####A large varience in the propsal function reduces autocorrelation and the data generated is approximatly Cauchy Distributed.
-
+#####A large varience in the propsal function reduces autocorrelation but produces more outliers.
 
 
 ###How does the number of simulated runs effect the Metropolis Algorithm with small varience?
 ```{r}
 for(i in 1:4)
 {
-metro_cauchy_norm(.5,i*200)
-
+  par(mfrow = c(1, 3))
+  metro_cauchy_norm(.5,i*200,.01*i*200)
+  
 }
+
+
+
+
+
 ```
 
 #####With a small varience in the proposal function means that the density of the data is slowly converging to the Cauchy distribution.
@@ -214,9 +274,17 @@ metro_cauchy_norm(.5,i*200)
 ```{r}
 for(i in 1:4)
 {
-metro_cauchy_norm(10,i*200)
-
+  par(mfrow = c(1, 3))
+  metro_cauchy_norm(10,i*200,.1*i*200)
+  
 }
+
+
 ```
 
 #####If the varience is too large the density of the data converges slowly.
+
+
+
+#### Limitations and results
+The project here only deals with the Cauchy distribution with Normal sampler. It is not a rigourus treatment of the topic so any conclusions are specific and not general.The choice of variance in the sampler function is highly important. If the varience is quite large then the acceptance rate is low so the algoritm coverges slowly. On the other hand if it is too small, the the algorithm moves slowly throughout the sample space and converges slowly. The solution to this problem, which is outside of the scope of this project, is to specify a loss function (perhaps devience from target distribution), and find the optimal varience the minimizes this loss function with optimization techniques like stocastic gradient descent or adaptive learning rates. A rigerous treatment of the latter can be found by Haario, Heikki; Saksman, Eero; Tamminen, Johanna. An adaptive Metropolis algorithm. Bernoulli 7 (2001), no. 2, 223--242.
