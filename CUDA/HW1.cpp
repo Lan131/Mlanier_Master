@@ -51,8 +51,8 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
   //First create a mapping from the 2D block and grid locations
   //to an absolute 2D location in the image, they use that to
   //calculate a 1D offset
-    int x = blockIdx.x // will give you X block Index at that particular thread
-    int y = blockIdx.y // will give you Y block Index at that particular thread. 
+    int x = blockIdx.x; // will give you X block Index at that particular thread
+    int y = blockIdx.y; // will give you Y block Index at that particular thread. 
   if (y < numCols && x < numRows) {
   	int index = numRows*y +x;
   uchar4 color = rgbaImage[index];
