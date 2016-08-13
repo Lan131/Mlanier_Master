@@ -1,0 +1,219 @@
+library(readr) # CSV file I/O, e.g. the read_csv function
+library(h2o) #deep learning
+library(caret) #preprocessing
+library(dplyr) # data manipulation
+library(lubridate) # dates
+library(rpart) # rpart for imputation
+
+#Load Data
+
+
+# Read the data
+train <-read.csv(file="act_train_preproccess.csv",header=T,stringsAsFactors = TRUE )
+#test <- read.csv('../input/test.csv', stringsAsFactors = F)
+attach(train)
+train=cbind(char_2,char_7,char_8,char_9,char_13,char_38,outcome=outcome)
+
+#Start up h20 cluster for deep learning
+
+
+h2o.init(nthreads = -1,min_mem_size="5G")
+dat_h2o = as.h2o(train) #Convert to h2o dataframe
+
+train=dat_h2o
+
+# Split up train and test data
+
+
+splits = h2o.splitFrame(train, c(0.6,0.2), seed=1234) #split into train and test
+train  = h2o.assign(splits[[1]], "train.hex") # 60%
+valid  = h2o.assign(splits[[2]], "valid.hex") # 20%
+test   = h2o.assign(splits[[3]], "test.hex")  # 20%
+
+
+train$outcome=as.factor(train$outcome)
+response <- "outcome"
+predictors <- setdiff(names(train), outcome)
+predictors
+str(train)
+
+
+
+
+#Try first model
+m1 <- h2o.deeplearning(
+  model_id="dl_model_first", 
+  training_frame=train, 
+  validation_frame=valid,   ## validation dataset: used for scoring and early stopping
+  x=predictors,
+  y=response,
+  loss="CrossEntropy",
+  activation="Rectifier",  ## default
+  hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
+  epochs=1,
+  variable_importances=T    ## not enabled by default
+)
+
+
+#examine model
+plot(m1)
+summary(m1)
+
+
+
+#Take top 10- note this may be slightly different since these results are not reproducable
+dat_h2o = as.h2o(full) #Convert to h2o dataframe
+dat_h2o=dat_h2o[,-24] #remove unimportant variables
+dat_h2o=dat_h2o[,-22]
+dat_h2o=dat_h2o[,-20]
+dat_h2o=dat_h2o[,-19]
+dat_h2o=dat_h2o[,-18]
+dat_h2o=dat_h2o[,-17]
+dat_h2o=dat_h2o[,-16]
+dat_h2o=dat_h2o[,-11]
+dat_h2o=dat_h2o[,-10]
+dat_h2o=dat_h2o[,-9]
+dat_h2o=dat_h2o[,-5] #remove to prevent leakage
+dat_h2o=dat_h2o[,-3]#data is elsewhere
+dat_h2o=dat_h2o[,-2]#no reason to suppose this is a predictor
+dat_h2o=dat_h2o[,-1]#no reason to suppose this is a predictor
+
+
+train_master <- dat_h2o[1:26729, ]
+testsubmit  <- dat_h2o[26730:nrow(dat_h2o), ]
+
+splits = h2o.splitFrame(train_master, c(0.6,0.2), seed=1234) #split into train and test
+train  = h2o.assign(splits[[1]], "train.hex") # 60%
+valid  = h2o.assign(splits[[2]], "valid.hex") # 20%
+test   = h2o.assign(splits[[3]], "test.hex")  # 20%
+attach(train)
+response <- "OutcomeType"
+predictors <- setdiff(names(train), response)
+predictors
+
+
+#Supervised blending
+kmean=h2o.kmeans( model_id="kmean", 
+                  training_frame=train, x=predictors,k=10, 
+                  max_iterations =200, standardize = TRUE, init = c(
+                    "Random"), seed=165,)
+
+summary(kmean)
+#assign clusters
+cluster= h2o.predict(kmean, train)
+train_bayes=h2o.cbind(train,cluster)
+response <- "OutcomeType"
+predictors <- setdiff(names(train_bayes), response)
+predictors
+
+
+
+
+
+#Bayes=h2o.naiveBayes(  model_id="Bayes", 
+# training_frame=train_bayes,  ignore_const_cols = TRUE,
+#  laplace = 0, threshold = 0.001, eps = 0, compute_metrics = TRUE,
+#  max_runtime_secs = 0,  x=predictors,
+#  y=response)
+#print(Bayes)
+
+train_master <- dat_h2o[1:26729, ]
+testsubmit  <- dat_h2o[26730:nrow(dat_h2o), ]
+
+splits = h2o.splitFrame(train_master, c(0.6,0.2), seed=1234) #split into train and test
+train  = h2o.assign(splits[[1]], "train.hex") # 60%
+valid  = h2o.assign(splits[[2]], "valid.hex") # 20%
+test   = h2o.assign(splits[[3]], "test.hex")  # 20%
+attach(train)
+response <- "OutcomeType"
+predictors <- setdiff(names(train), response)
+predictors
+
+#mboost <- h2o.gbm(training_frame=train,   model_id="mboost",
+# validation_frame=valid,   
+# x=predictors,   
+#  y=response,
+#seed=159
+#   , ntrees = 500, max_depth = 10, min_rows = 10,learn_rate=.0001,
+#  stopping_metric="misclassification",   stopping_tolerance=0.1)
+
+
+#Stacking has poor preformance
+#train_agg=(test_mboost*test_bayes)^.5
+#train=h2o.cbind(train[["OutcomeType"]],train_agg[,-1])
+#response <- "OutcomeType"
+#predictors <- setdiff(names(train), response)
+#predictors
+
+#### Random Hyper-Parameter Search
+
+hyper_params <- list(
+  activation=c("Rectifier","Tanh","Maxout","RectifierWithDropout","TanhWithDropout","MaxoutWithDropout"),
+  hidden=list(c(20,20),c(100,75,50),c(25,25,25,25),c(2,4,6,8,6,4,2),c(2000,1000,500)),
+  input_dropout_ratio=seq(.4,.6,by=.01), #For ensemble effect see Hinton's work for explaination
+  l1=seq(0,1e-4,1e-6),
+  l2=seq(0,1e-4,1e-6),               
+  rate=seq(0.001,.7,by=.001) ,
+  rate_annealing=seq(0,2e-4,by= 1e-5)
+  
+)
+hyper_params
+
+
+## Stop once the top 5 models are within 1% of each other (i.e., the windowed average varies less than 1%)
+search_criteria = list(strategy = "RandomDiscrete", max_runtime_secs = 360, max_models = 100, seed=1234567, stopping_rounds=10, stopping_tolerance=1e-2)
+dl_random_grid <- h2o.grid(
+  algorithm="deeplearning",
+  grid_id = "dl_grid_random",
+  training_frame=train,
+  validation_frame=valid, 
+  x=predictors, 
+  y=response,
+  epochs=20,
+  loss="CrossEntropy",
+  stopping_metric="logloss",
+  stopping_tolerance=1e-3,        ## stop when logloss does not improve by >=1% for 2 scoring events
+  stopping_rounds=4,
+  score_validation_samples=500, ## downsample validation set for faster scoring
+  score_duty_cycle=0.025,         ## don't score more than 2.5% of the wall time
+  max_w2=5,                      ## can help improve stability for Rectifier
+  hyper_params = hyper_params,
+  search_criteria = search_criteria,
+  variable_importances=T,
+  standardize=TRUE
+  #  ,
+  #  pretrained_autoencoder="ae_model"
+)            
+
+
+
+#examine grid
+grid <- h2o.getGrid("dl_grid_random",sort_by="logloss",decreasing=FALSE)
+grid
+
+grid@summary_table[1,]
+best_model <- h2o.getModel(grid@model_ids[[1]]) ## model with lowest logloss
+plot(best_model)
+
+
+#without RF variable reduction logloss ~.8,~.75 with reduction
+test_mboost <- h2o.predict(mboost, testsubmit)
+h2o_yhat_test_dl <- h2o.predict(best_model, testsubmit)
+test_bayes <- h2o.predict(Bayes, testsubmit)
+
+test_id <- read.csv('../input/test.csv', stringsAsFactors = F)
+
+#test_agg=(test_mboost*test_bayes*h2o_yhat_test_dl )^(1/3)
+#test_agg <- as.data.frame(test_agg) 
+#test_agg =test_agg [,-1]
+#test_agg =cbind(as.data.frame(test_id[,1]),test_agg )
+#colnames(test_agg)[1] <- "ID"
+
+
+h2o_yhat_test_dl <- as.data.frame(h2o_yhat_test_dl) 
+h2o_yhat_test_dl =test_agg [,-1]
+h2o_yhat_test_dl =cbind(as.data.frame(test_id[,1]),h2o_yhat_test_dl )
+colnames(h2o_yhat_test_dl)[1] <- "ID"
+write.csv(h2o_yhat_test_dl,file="submission.csv", row.names=FALSE)
+
+
