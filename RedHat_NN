@@ -12,10 +12,10 @@ for (pkg in pkgs) {
 # Now we download, install and initialize the H2O package for R.
 install.packages("h2o", type="source", repos=(c("http://h2o-release.s3.amazonaws.com/h2o/rel-turing/3/R")))
 library(h2o)
-localH2O = h2o.init(nthreads=-1)
 
-
-
+library(devtools)
+#install_github("h2oai/h2o-3/h2o-r/ensemble/h2oEnsemble-package")
+library(h2oEnsemble)
 
 library(caret) #preprocessing
 library(dplyr) # data manipulation
@@ -127,8 +127,8 @@ dl_random_grid <- h2o.grid(
   y=response,
   epochs=5,
   loss="CrossEntropy",
-  stopping_metric="logloss",
-  stopping_tolerance=1e-3,        ## stop when logloss does not improve by >=1% for 2 scoring events
+  stopping_metric="misclassification",
+  stopping_tolerance=1e-2,       
   stopping_rounds=4,
   score_validation_samples=500, ## downsample validation set for faster scoring
   score_duty_cycle=0.025,         ## don't score more than 2.5% of the wall time
@@ -144,13 +144,54 @@ dl_random_grid <- h2o.grid(
 
 
 #examine grid
-grid <- h2o.getGrid("dl_grid_random",sort_by="logloss",decreasing=FALSE)
+grid <- h2o.getGrid("dl_grid_random",sort_by="accuracy",decreasing=TRUE)
 grid
 
 grid@summary_table[1,]
-best_model <- h2o.getModel(grid@model_ids[[1]]) ## model with lowest logloss
+best_model <- h2o.getModel(grid@model_ids[[1]]) ## model with highest accuracy
 plot(best_model)
 
+#acccuracy .83
+#auc .89
+
+
+
+mboost <- h2o.gbm(training_frame=train,   model_id="mboost",
+                  validation_frame=valid,   
+                  x=predictors,   
+                  y=response,
+                  seed=159
+                  , ntrees = 1000, max_depth = 10, min_rows = 10,learn_rate=.0001,
+                  stopping_metric="misclassification",   stopping_tolerance=0.1)
+print(mboost)
+plot(mboost)
+#.85
+#auc .91
+
+
+learner <- c("h2o.glm.wrapper", "h2o.randomForest.wrapper", 
+             "h2o.gbm.wrapper", "h2o.deeplearning.wrapper")
+metalearner <- "h2o.glm.wrapper"
+fit <- h2o.ensemble(  x=predictors, 
+                      y=response, 
+                    training_frame = train, 
+                    family = "binomial", 
+                    learner = learner, 
+                    metalearner = metalearner,
+                    cvControl = list(V = 5))
+
+pred <- predict(fit, test)
+predictions <- as.data.frame(pred$pred)[,3]  #third column is P(Y==1)
+labels <- as.data.frame(test[,response])[,1]
+library(cvAUC)
+cvAUC::AUC(predictions = predictions, labels = labels)
+
+#AUC .93
+L <- length(learner)
+auc <- sapply(seq(L), function(l) cvAUC::AUC(predictions = as.data.frame(pred$basepred)[,l], labels = labels)) 
+data.frame(learner, auc)
+
+h2o.shutdown()
 
 
 h2o_yhat_test_dl <- as.data.frame(h2o_yhat_test_dl) 
