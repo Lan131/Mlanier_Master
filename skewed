@@ -1,0 +1,119 @@
+---
+title: "Why unskewing polls are nonsense"
+author: "Michael Lanier"
+date: "September 13, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+
+A major topic in the last few months has been the concept of "skewed polls". The idea is that the polls are skewed in favor of one candidate because the randomness of the polls is capturing more Democrats than Republicans, therefore it is biased against Republicans. After all, they argue, if your poll contained only white college age people your poll would be biased to the voting preferences of a certain demographic. Harry Enten at fivethirtyeight said bluntly  "The polls are not 'skewed.'... Party identification is an attitude, not a demographic."  I don't find this argument particularly convincing because it fails to answer why or how this would make a difference. To that end we might first determine the effect of unskewing polls with synthetic data.
+
+Let's start by looking at a hypothetical situation where 55% of voters voted Democrat (similar to 2012). We will compare that to a group of voters from 2016 which is more heavily favoring Democrats at 60% (similar to right now). We will take a random sample with the R programming language and then apply an "unskewing procedure" to see what happens.
+
+
+```{r}
+set.seed(123)
+Theta_2012_Democrat=.55
+Theta_2016_Democrat=.60
+
+```
+
+
+Let's take a random sample of 2000 using the 2016 parameter to see what a potential poll might look like.
+
+
+```{r}
+
+results=runif(2000)
+length(which(results<Theta_2016_Democrat))/2000
+```
+
+The sample proportion is 61.05%. This is a bit higher than we would expect. Now let's examine an unskewing procedure. By our assumption from there are 5% more Democrats in 2016 than 2012, so we need to adjust the poll result 5% in the Republican direction to unskew the result. 
+
+```{r}
+.95*length(which(results<Theta_2016_Democrat))/2000
+```
+
+To test this methods let's iterate it 10,000 times and see how well it predicts the true 2016 parameter.
+
+```{r}
+unskewed=as.vector(10000)
+skewed=as.vector(10000)
+
+for(i in 1:10000)
+  {
+    results=runif(2000)
+    unskewed[i]=length(which(results<Theta_2016_Democrat))/2000*.95
+    skewed[i]=length(which(results<Theta_2016_Democrat))/2000
+    }
+
+ ggplot(as.data.frame(skewed), aes(x=skewed),xlim=c(0,.6)) + 
+  geom_density()
+   ggplot(as.data.frame(unskewed), aes(x=unskewed),xlim=c(0,.6)) + 
+  geom_density()
+
+ 
+mean(unskewed)
+mean(skewed)
+```
+
+
+From the graphs we can see the sampling distribution is the same shape, but the unskewed one is shifted. What is highly concerning though is that our population proportion is 60% and our "unskewed" proportion is 57% and the "skewed" proportion is 60%. 
+
+From here it might be good to recall what a bias statistic is. A bias statistic is one that does not converge to the parameter. In our case we could sample a billion times and our unskewing procedure will cause our sampling distribution to miss the mark. We are doing the equivalent of flipping a coin, checking if its heads and flipping it once over and saying the probability of a coin flipping tails is 100%. In this example an estimate of the bias is about 3%.
+
+From this example it might now be clear what has happened, people claiming the unskew the polls are just changing the data to fit a prior which they find more agreeable. 
+
+This differs from adjustments are made when a poll is carried out due to demographics. In this case what is happening is that certain groups that are part of the population, cannot easily be measured. Their absence means that the poll will be biased since the poll is missing information. We can illustrate this below.
+
+Assume a population has two groups of people. Group A votes Democrat 99% of the time and composes 25% of the population. Group B votes Democrat 10% of the time and makes up the other 75% of the population. Due to the nature of polling any poll with be 95% composed of members from group B and 5% from group A.
+
+Let's calculate the population proportion and compare it to the mean of the sample proportion after 10000 polls of 2000 voters.
+
+The true proportion of Democratic voters in the population is
+```{r}
+.25*.99+.75*.1
+```
+
+Let's look at the polls:
+
+```{r}
+
+polls=as.vector(10000)
+for(j in 1:10000) #10000 polls
+{
+  democrat_count=0  #initialize count for poll
+  for(i in 1:2000)  #2000 people per poll
+  
+  {
+    group_membership=runif(1)
+    if(group_membership<.95)
+    {
+       responce=runif(1)
+      if(responce<.99)
+      {
+      democrat_count=democrat_count+1
+      }
+      }else{
+      responce=runif(1)
+        if(responce<.1)
+        {
+          democrat_count=democrat_count+1
+        }
+      }
+    
+ polls[j]= democrat_count  
+  }
+}  
+
+mean(polls)/2000 #sampling mean
+```
+
+As we can see the nature of the poll is that it is biased. This is because our sample is not random. In this case our polls are biased due to an effect prior to the poll as opposed to the people "unskewing" polls which are biasing the polls post polling. 
+
+In the case where the polling procedure itself is biased due to difficulties in reaching certain parts of the population their is often times little indication that the polls are non representative. At worst the statistician just has to say "Sorry but we don't have enough information and this is the best we can do." However, no statistician would preform a post poll adjustment like those across the internet did when Romney's poll took a turn and even more so in 2016 with Trump's abysmal polls because such a technique is nonsense.
