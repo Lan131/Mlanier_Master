@@ -101,3 +101,73 @@ PROC PRINT DATA=marine;
 RUN;
 *close pdf
 ODS PDF CLOSE;
+
+
+*merge data
+
+DATA description;
+	infile path TRUNCOVER;
+	input CodeNum $ 1-4 Name $ 6-14 Desciption $ 15-60;
+RUN;
+
+DATA sales;
+	infile path TRUNCOVER;
+	input CodeNum $ 1-4 PiecesSold 6-7; 
+
+PROC SORT Data=sales;
+	By CodeNum;
+
+RUN;
+
+
+*Merge by code num
+
+DATA chocolates;
+	MERGE sales descriptions;
+	BY CodeNum;
+Run;
+
+PROC PRINT DATA=chocolates;
+
+TITLE "Today's chocolate sales";
+
+RUN;
+
+* calculated fields
+
+
+libname sql 'SAS-library';
+
+proc sql outobs=12;
+   title 'U.S. Postal Codes';
+   select 'Postal code for', Name, 'is', Code
+      from sql.postalcodes;
+
+
+
+libname sql 'SAS-library';
+
+proc sql outobs=12;
+   title 'Range of High and Low Temperatures in Celsius';
+      select City, (AvgHigh - 32) * 5/9 as HighC format=5.1, 
+                   (AvgLow - 32) * 5/9 as LowC format=5.1,
+                   (calculated HighC - calculated LowC)
+                    as Range format=4.1
+   from sql.worldtemps;
+RUN;
+
+
+*calculated fields with running max
+
+DATA gamestats;
+	INFILE 'c:\my_path\Games.dat'
+	INPUT Month 1 Day 3-4 Team $ 6-25 Hits 27-28 Runs 30-31;
+	RETAIN MaxRuns;
+	MaxRun = MAX(MaxRuns, Runs);
+	RunsToDate + Runs; *RunsToDate is modified by Runs, which is a variable. RunstoDate is an expression
+Run;
+
+PROC PRINT DATA= gamestats;
+	TITLE "Season's record to date.";
+RUN;
+
