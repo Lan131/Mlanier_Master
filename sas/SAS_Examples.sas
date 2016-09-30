@@ -1,3 +1,10 @@
+*CSV import
+
+DATA Music;
+infile 'path' DLM=',' DSD MISSOVER;
+INPUT name $ 1-10 age 11-12;
+run;
+
 * create a user defined format
 
 
