@@ -513,4 +513,4 @@ plot(as.data.frame(h2o.weights(iris_dl,  matrix_id=1))[,1])
 #### All done, shutdown H2O
 h2o.shutdown(prompt=FALSE)
 Status API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Contact Help
+Â© 2016 GitHub, Inc. Terms Privacy Security Contact Help
