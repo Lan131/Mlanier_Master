@@ -171,3 +171,72 @@ PROC PRINT DATA= gamestats;
 	TITLE "Season's record to date.";
 RUN;
 
+*add summary statistics to data
+
+DATA shoes;
+	INFILE 'c:\my_path\shoe_data.dat';
+	INPUT Style $ 1-15 ExerciseType $ Sales;
+RUN;
+
+PROC SORT DATA = shoes;
+BY ExerciseType;
+Run;
+
+*Summarize by exercise type
+
+PROC MEANS NOPRINT DATA=shoes;
+VAR=Sales;
+By=ExerciseType;
+OUTPUT OUT= summarydata SUN(Sales) = Total;
+
+RUN;
+
+PROC PRINT DATA= summarydata;
+TITLE 'Summary data set';
+RUN;
+
+DATA shoesummary;
+MERGE shoes summarydata;
+BY ExerciseType;
+Percent=Sales / Total *100;
+RUN;
+
+PROC PRINT DATA=shoesummary;
+BY ExerciseType;
+ID ExerciseType;
+VAR STyle Sales Total Percent;
+TITLE 'Sales Share by Type of Exercise';
+RUN;
+
+
+*freq proc
+
+DATA orders;
+INFILE 'c:\my_path\coffee.dat';
+INPUT Coffee $ Window $@@;
+
+PROC FREQ DARA=orders;
+
+TABLES Window Window*Coffee;
+
+RUN;
+
+
+*create data
+
+DATA Generate;
+
+DO x=1 to 6;
+y=x**2;
+OUTPUT;
+RUN;
+
+
+*pivot data
+PROC TRANSPOSE DATA=baseball OUT=filipped;
+By Team Player;
+ID Type;
+VAR Entry;
+
+PROC PRINT DATA=flipped;
+run;
