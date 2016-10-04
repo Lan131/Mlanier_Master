@@ -5,7 +5,7 @@ infile 'path' DLM=',' DSD MISSOVER;
 INPUT name $ 1-10 age 11-12;
 run;
 
-* create a user defined format
+* create a user defined format;
 
 
 DATA carsurvey;
@@ -29,7 +29,7 @@ PROC FORMAT
 		   'B'='Sky Blue'
 		   'Y'='Sunburst Yellow'
 		   'G'= "Rain Cloud Gray';
-* print using DOLLAR8. format
+* print using DOLLAR8. format;
 
 PROC PRINT DATA= carsurvey;
 	FORMAT Sex Gender. Age agegroup. Color @color. Income DOLLAR8.;
@@ -37,7 +37,7 @@ PROC PRINT DATA= carsurvey;
 RUN;
  
 
-*Null data (produces no data set but can be used as a report of sorts)
+*Null data (produces no data set but can be used as a report of sorts);
 
 DATA _NULL_;
 	INFILE 'c/user_your_path_here'
@@ -52,14 +52,14 @@ Put @5 'Candy sales report for ' Name ' rom classroom' Class// @5 'Congradulatio
 PUT _PAGE_;
 RUN;
 
-* add summary breaks
+* add summary breaks;
 
 DATA natparks
 	INFILE 'c:\my_path_here\data.dat';
 	INPUT Name $ 1-21 Type $ Region $ Museums Camping;
 RUN;
 
-*proc Report with breaks
+*proc Report with breaks;
 
 PROC REPORT DATA=narparks NOWINDOWS;
 	COLUMN Name Region Museums Camping ;
@@ -69,10 +69,10 @@ RBREAK AFTER / SUMMARIZE;
 TITLE 'Detail Report with Summary Breaks';
 RUN;
 
-*add summary statistics to data
+*add summary statistics to data;
 
 
-*stats in collum with 2 groups variables
+*stats in collum with 2 groups variables;
 PROC REPORT DATA = narparks NOWINDOWS;
 	COLUMN Region Type N (museums Camping),MEAN;
 	DEFINE Region / GROUP;
@@ -80,7 +80,7 @@ PROC REPORT DATA = narparks NOWINDOWS;
 	TITLE 'Statistics with a Group and Across Variable.';
 RUN;
 
-*stats in collum with 1 groups variable and 1 across variable
+*stats in collum with 1 groups variable and 1 across variable;
 PROC REPORT DATA = narparks NOWINDOWS;
 	COLUMN Region Type N (museums Camping),MEAN;
 	DEFINE Region / GROUP;
@@ -89,7 +89,7 @@ PROC REPORT DATA = narparks NOWINDOWS;
 RUN;
 
 
-*create PDF
+*create PDF;
 
 ODS PDF FILE= 'c:\my_path_here\Marine.pdf' STARTPAGE=NO;
 ODS NOPROCTITLE;
@@ -110,7 +110,7 @@ RUN;
 ODS PDF CLOSE;
 
 
-*merge data
+*merge data;
 
 DATA description;
 	infile path TRUNCOVER;
@@ -127,7 +127,7 @@ PROC SORT Data=sales;
 RUN;
 
 
-*Merge by code num
+*Merge by code num;
 
 DATA chocolates;
 	MERGE sales descriptions;
@@ -140,7 +140,7 @@ TITLE "Today's chocolate sales";
 
 RUN;
 
-* calculated fields
+* calculated fields;
 
 
 libname sql 'SAS-library';
@@ -164,7 +164,7 @@ proc sql outobs=12;
 RUN;
 
 
-*calculated fields with running max
+*calculated fields with running max;
 
 DATA gamestats;
 	INFILE 'c:\my_path\Games.dat'
@@ -178,7 +178,7 @@ PROC PRINT DATA= gamestats;
 	TITLE "Season's record to date.";
 RUN;
 
-*add summary statistics to data
+*add summary statistics to data;
 
 DATA shoes;
 	INFILE 'c:\my_path\shoe_data.dat';
@@ -189,7 +189,7 @@ PROC SORT DATA = shoes;
 BY ExerciseType;
 Run;
 
-*Summarize by exercise type
+*Summarize by exercise type;
 
 PROC MEANS NOPRINT DATA=shoes;
 VAR=Sales;
@@ -216,7 +216,7 @@ TITLE 'Sales Share by Type of Exercise';
 RUN;
 
 
-*freq proc
+*freq proc;
 
 DATA orders;
 INFILE 'c:\my_path\coffee.dat';
@@ -229,7 +229,7 @@ TABLES Window Window*Coffee;
 RUN;
 
 
-*create data
+*create data;
 
 DATA Generate;
 
@@ -239,7 +239,7 @@ OUTPUT;
 RUN;
 
 
-*pivot data
+*pivot data;
 PROC TRANSPOSE DATA=baseball OUT=filipped;
 By Team Player;
 ID Type;
