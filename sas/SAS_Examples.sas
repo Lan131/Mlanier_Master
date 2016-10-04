@@ -1,4 +1,4 @@
-*CSV import
+*CSV import;
 
 DATA Music;
 infile 'path' DLM=',' DSD MISSOVER;
