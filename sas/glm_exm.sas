@@ -155,7 +155,7 @@ ODS RTF FILE="C;\MyRTFFiles\FlowerSales_&SYSDATE..rtf";
 
 PROC MEANS DATA=flowersales SUM MIN MAX MAXDEC=0;
 VAR Sale&SumVar; *So this is SaleQuantity;
-Title "Summary of Sales &sumVar by Variety";
+Title "Summary of Sales &SumVar by Variety";
 RUN;
 
 ODS RTF CLOSE;
