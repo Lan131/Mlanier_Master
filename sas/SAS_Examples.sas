@@ -40,9 +40,9 @@ RUN;
 *Null data (produces no data set but can be used as a report of sorts);
 
 DATA _NULL_;
-	INFILE 'c/user_your_path_here'
+	INFILE 'c/user_your_path_here';
 	INPUT Name $ 1-11 Class @15 DateReturned MMDDYY10.
-		CandyType $ Quantity
+		CandyType $ Quantity;
 Profit=Quantity * 1.25;
 FILE 'c:\MyRawDate\Student.txt' Print;
 Title;
