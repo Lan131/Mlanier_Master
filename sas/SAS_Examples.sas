@@ -290,6 +290,29 @@ RUN;
 ODS RTF CLOSE;
 
 
+/*casting varaiables*/
+
+*character to numeric-> oldvar, informat;
+NewScore2=INPUT(Score2.,2.);
+*numeric to character->oldvar, format;
+NewId=Put(StudentId, 3.);
+
+*dump data step;
+PUTLOG _ALL_;
+
+LIBNAME sports 'c:\my_path';
+PROC SQL;
+	CREATE TABLE sports.customer
+		(CustomerNumber num, Name char(17), Adress Char(20) );
+		
+	INSERT INTO sports.customers
+	VALUES (101, 'Murphy's Sports', '101 W Main')
+	VALUES (1504, 'John's Ice', '1500 Pen');
+	
+	TITLE 'Business Data';
+	
+	Select * from sports.customer;
+	
 
 
 
