@@ -119,44 +119,4 @@ PROC GLM DATA=MIXED1;
    RUN;
    
    
-*Using automatic variables;
-
-DATA walkers;
-	INFILE 'c:\my_path_here';
-	INPUT Entry AgeGroup $ Time @@;
-PROC SORT DATA=walkers;
-	By Time;
-8create a new variable, Place;
-Data ordered;
-	SET walkers;
-	Place = _N_;
-PROC PRINT DATA = ordered;
-	TITLE 'Results';
-RUN;
-
-
-* Use macrovariables &SYSDATE, &SYSDAY, &SYSNOBS, and strings;
-
-&LET SumVar=Quantity;      *SumVar is a string;
-
-*Read data and subset with macro;
-
-DATA flowersales;
-DATA flowersdata;
-	INFILE 'c:\my_path_here';
-	INPUT CustomerID $4. @6  SaleDate MMDDYY10. @17 Variety $9.
-	      SaleQuantity SaleAmount;
-
-RUN;
-
-* Create RTF (Rich text format) with todays date (note you need a period after calling macro variable);
-
-ODS RTF FILE="C;\MyRTFFiles\FlowerSales_&SYSDATE..rtf";
-
-PROC MEANS DATA=flowersales SUM MIN MAX MAXDEC=0;
-VAR Sale&SumVar; *So this is SaleQuantity;
-Title "Summary of Sales &SumVar by Variety";
-RUN;
-
-ODS RTF CLOSE;
 
