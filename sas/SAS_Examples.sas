@@ -289,3 +289,90 @@ RUN;
 
 ODS RTF CLOSE;
 
+
+/* Create macros */
+
+*print every other row;
+
+%MACRO sample_every_other;
+
+
+PROC SORT DATA= flowersales;
+	BY DESCENDING SaleQuantity;
+RUN;
+
+
+PROC PRINT DATA=flowersales;
+	WHERE mod(_N_,2)=0;
+	TITLE "Every other flower Sales.";
+RUN;
+
+%MEND sample_every_other;
+
+
+*try macro on data set;
+
+DATA flowersales;
+	INFILE 'c:\my_path\';
+	INPUT ID $4. @6 SaleData MMDDYY10. @17 Variety $9. SaleQuantity SaleAmount;
+RUN;
+
+
+* invoke macro;
+
+%sample_every_other
+
+
+
+/* Create macros with parameters */
+
+
+
+%macro srs (j=);
+
+
+title1 'Customer Satisfaction Survey';
+title2 'Simple Random Sampling ';
+proc surveyselect data=Customers
+   method=srs n=j out=SampleSRS;
+run;
+
+%mend srs;
+
+*invoke sas macro;
+
+DATA Customers;
+	INPUT 'c:\my_path\';
+RUN;
+
+%srs(j=10)
+
+*custom sort;
+
+%MACRO select(customer=,sortvar=);
+
+PROC SORT DATA = flowersales OUT=salesout;
+	BY &sortvar;
+	WHERE CustomerID= "&customer";
+RUN;
+
+PROC PRINT DATA = salesout;
+	FORMAT SaleData WORDDATE18. SaleAmount DOLLAR7.;
+	TITLE1 "Orders for Customer Number &customer";
+	TITLE2 "Sorted by &sortvar";
+RUN;
+
+%MEND select;
+
+DATA flowersales;
+	INFILE 'c:\path';
+	INPUT CustomerID $4. @6 SaleData MMDDYY10. @17 Variety $9. SaleQuantity SaleAmount;
+RUN;
+
+*invoke macro;
+
+%select(customer = 356W,sortvar = SaleQuanitity)
+%select(customer = 240W, sortvar = Variety)
+
+
+
