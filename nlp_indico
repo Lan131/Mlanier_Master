@@ -84,3 +84,18 @@ collection.wait()
 
 # Done! Start analyzing text
 collection.predict("indico is so easy to use!")
+
+
+#facial recognition
+
+import indicoio
+indicoio.config.api_key = '75b93ed62df0c77a6e58c8ebb1bb71f2'
+
+# single example
+indicoio.fer("<IMAGE>")
+
+# batch example
+indicoio.fer([
+    "<IMAGE>",
+    "<IMAGE>"
+])
