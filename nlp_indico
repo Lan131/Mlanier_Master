@@ -48,3 +48,39 @@ indicoio.batch_sentiment(['indico is so easy to use!', 'Still really easy, yiss'
 #emotion(data, [api_key], [cloud], [top_n], [threshold])
 #intersections(data, apis, [api_key], [cloud])
 #analyze_text(data, apis, [api_key], [cloud])
+
+
+
+# batch example
+indicoio.analyze_text(
+    [
+        "Democratic candidate Hillary Clinton is excited for the upcoming election.",
+        "Bill Clinton joins President Obama for a birthday golf game at Marthas Vineyard."
+    ],
+    apis=['sentiment_hq', 'political']
+)
+# splitting
+
+
+import indicoio
+
+indicoio.sentiment('This sentence is awful. This sentence is great!', split='sentence')
+
+
+#custom training
+from indicoio.custom import Collection
+indicoio.config.api_key = '75b93ed62df0c77a6e58c8ebb1bb71f2'
+
+collection = Collection("collection_name")
+
+# Add Data
+collection.add_data([["text1", "label1"], ["text2", "label2"], ...])
+
+# Training
+collection.train()
+
+# Telling Collection to block until ready
+collection.wait()
+
+# Done! Start analyzing text
+collection.predict("indico is so easy to use!")
