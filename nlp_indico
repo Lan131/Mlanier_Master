@@ -1,0 +1,50 @@
+
+indicoio.config.api_key = 'my_api_key'
+
+# single example
+indicoio.sentiment("I love writing code!")
+
+# batch example
+indicoio.sentiment([
+    "I love writing code!",
+    "Alexander and the Terrible, Horrible, No Good, Very Bad Day"
+])
+
+import indicoio
+
+# option 1: pass configuration as a function argument
+print(indicoio.sentiment('indico is so easy to use!', api_key="75b93ed62df0c77a6e58c8ebb1bb71f2", cloud="YOUR_SUBDOMAIN"))
+
+# option 2: set module variable
+indicoio.config.api_key = '75b93ed62df0c77a6e58c8ebb1bb71f2'
+indicoio.config.cloud = 'YOUR_SUBDOMAIN'
+print(indicoio.sentiment('indico is so easy to use!'))
+
+
+import indicoio
+indicoio.config.api_key = '75b93ed62df0c77a6e58c8ebb1bb71f2'
+
+# Version >= 0.9.0
+indicoio.sentiment(['indico is so easy to use!', 'Still really easy, yiss'])
+
+# Version < 0.9.0
+indicoio.batch_sentiment(['indico is so easy to use!', 'Still really easy, yiss'])
+
+#https://indico.io/docs
+
+#sentiment(data, [api_key], [cloud], [language])
+#sentiment_hq(data, [api_key], [cloud])
+#text_tags(data, [api_key], [cloud], [top_n], [threshold], [independent])
+#language(data, [api_key], [cloud])
+#political(data, [api_key], [cloud], [top_n], [threshold])
+#keywords(data, [api_key], [version], [cloud], [top_n], [threshold], [relative]
+#people(data, [api_key], [cloud], [threshold])
+#places(data, [api_key], [cloud], [threshold])
+#organizations(data, [api_key], [cloud], [threshold])
+#twitter_engagement(data, [api_key], [cloud])
+#personality(data, [api_key], [cloud])
+#relevance(data, queries, [api_key], [cloud])
+#text_features(data, [api_key], [cloud])
+#emotion(data, [api_key], [cloud], [top_n], [threshold])
+#intersections(data, apis, [api_key], [cloud])
+#analyze_text(data, apis, [api_key], [cloud])
