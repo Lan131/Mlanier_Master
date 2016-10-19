@@ -1,5 +1,7 @@
 
+
 indicoio.config.api_key = 'my_api_key'
+
 
 # single example
 indicoio.sentiment("I love writing code!")
@@ -86,6 +88,35 @@ collection.wait()
 collection.predict("indico is so easy to use!")
 
 
+#images
+import indicoio
+
+indicoio.fer('https://IMAGE_URL')
+Specifying Filepath
+
+import indicoio
+
+indicoio.fer('FILEPATH')
+Formatting images using skimage
+
+import skimage.io
+import indicoio
+
+pixel_array = skimage.io.imread('FILEPATH')
+
+indicoio.fer(pixel_array)
+Formatting images using PIL and numpy
+
+from PIL import Image
+import numpy as np
+import indicoio
+
+image = Image.load('FILEPATH')
+pixel_array = np.array(image)
+
+indicoio.fer(pixel_array)
+
+
 #facial recognition
 
 import indicoio
@@ -99,3 +130,16 @@ indicoio.fer([
     "<IMAGE>",
     "<IMAGE>"
 ])
+
+#multiple
+import indicoio
+indicoio.config.api_key = '75b93ed62df0c77a6e58c8ebb1bb71f2'
+
+# single example
+indicoio.analyze_image("<IMAGE>", apis=["image_features", "fer","content_filtering])
+
+# batch example
+indicoio.analyze_image([
+    "<IMAGE>", 
+    "<IMAGE>"
+], apis=["image_features", "fer"])
