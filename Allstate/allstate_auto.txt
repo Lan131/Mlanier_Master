@@ -1,0 +1,184 @@
+
+# The following two commands remove any previously installed H2O packages for R.
+if ("package:h2o" %in% search()) { detach("package:h2o", unload=TRUE) }
+if ("h2o" %in% rownames(installed.packages())) { remove.packages("h2o") }
+
+# Next, we download packages that H2O depends on.
+pkgs <- c("methods","statmod","stats","graphics","RCurl","jsonlite","tools","utils")
+for (pkg in pkgs) {
+  if (! (pkg %in% rownames(installed.packages()))) { install.packages(pkg) }
+}
+
+# Now we download, install and initialize the H2O package for R.
+install.packages("h2o", type="source", repos=(c("http://h2o-release.s3.amazonaws.com/h2o/rel-turing/3/R")))
+library(h2o)
+
+library(devtools)
+#install_github("h2oai/h2o-3/h2o-r/ensemble/h2oEnsemble-package")
+library(h2oEnsemble)
+library(ggplot2)
+library(caret) #preprocessing
+library(dplyr) # data manipulation
+library(rpart) # rpart for imputation
+setwd("C:\\Users\\Lanier\\Desktop\\Kaggle\\Allstate")
+#Load Data
+
+
+
+# Read the data
+train_master <-read.csv(file="train.csv",header=T,stringsAsFactors = TRUE )
+train_master=train_master[,-1]
+test_master <-read.csv(file="test.csv",header=T,stringsAsFactors = TRUE )
+attach(train_master)
+
+#fit=lm(loss~.,data=train_master)
+#summary(fit)
+#anova(fit)
+
+
+
+
+#Start up h20 cluster for deep learning
+
+h2o.shutdown(prompt = TRUE)
+
+h2o.init(nthreads = -1, max_mem_size="14g")
+dat_h2o = as.h2o(train_master) #Convert to h2o dataframe
+
+
+#train_master=train_master[,-132]
+# Split up train and test data
+
+
+splits = h2o.splitFrame(dat_h2o, c(0.6,0.2), seed=1234) #split into train and test
+train  = h2o.assign(splits[[1]], "train.hex") # 60%
+valid  = h2o.assign(splits[[2]], "valid.hex") # 20%  #For hyperparam search
+test   = h2o.assign(splits[[3]], "test.hex")  # 20%
+
+
+
+response <- "loss"
+predictors <- setdiff(names(train), response)
+predictors
+
+
+auto = h2o.deeplearning(x = names(train), training_frame = train,
+                        autoencoder = TRUE,activation="TanhWithDropout",
+                        hidden = c(10,5,10), epochs = 5)
+
+summary(auto)
+#on training 60% of training
+#dat.anon = h2o.anomaly(auto, train, per_feature=FALSE)
+#head(dat.anon)
+#err <- as.data.frame(dat.anon)
+#plot(sort(err$Reconstruction.MSE), main='Reconstruction Error')
+
+#train_df_auto <- train_master[err$Reconstruction.MSE < 0.04,]
+#recon<- train_master[err$Reconstruction.MSE > 0.04,]
+#write.csv(recon ,"recon.csv")
+#write.csv(train_df_auto,"denoised.csv")
+#train=as.h2o(train_df_auto)
+
+
+#on test
+test_ma=as.h2o(test_master)
+
+
+
+auto_test = h2o.deeplearning(x = names(test_master), training_frame = test_ma,
+                       autoencoder = TRUE,activation="TanhWithDropout",
+                        hidden = c(10,5,10), epochs = 5)
+
+
+dat.anon_test = h2o.anomaly(auto_test, test_ma, per_feature=FALSE)
+head(dat.anon_test)
+err <- as.data.frame(dat.anon_test)
+plot(sort(err$Reconstruction.MSE), main='Reconstruction Error')
+
+
+train=as.h2o(train_df_auto)
+write_test_with_new_feature=h2o.cbind(test_ma,as.h2o(err))
+
+
+write.csv(as.data.frame(write_test_with_new_feature),"Test_new_feat.csv")
+
+
+
+
+#on full training 
+auto_train_full = h2o.deeplearning(x = names(dat_h2o), training_frame = dat_h2o,
+autoencoder = TRUE,activation="TanhWithDropout",
+hidden = c(10,5,10), epochs = 5)
+
+dat.anon_full = h2o.anomaly(auto_train_full, dat_h2o, per_feature=FALSE)
+head(dat.anon_full)
+err <- as.data.frame(dat.anon_full)
+dat_h2o=h2o.cbind(dat_h2o,as.h2o(err))
+plot(sort(err$Reconstruction.MSE), main='Reconstruction Error')
+
+
+
+#train with new feature
+
+splits = h2o.splitFrame(dat_h2o, c(0.6,0.2), seed=1234) #split into train and test
+train  = h2o.assign(splits[[1]], "train.hex") # 60%
+valid  = h2o.assign(splits[[2]], "valid.hex") # 20%  #For hyperparam search
+test   = h2o.assign(splits[[3]], "test.hex")  # 20%
+
+
+
+response <- "loss"
+predictors <- setdiff(names(train), response)
+predictors
+
+
+
+#recon<- train_master[err$Reconstruction.MSE > 0.04,]
+#write.csv(recon ,"recon.csv")
+#write.csv(train_df_auto,"denoised.csv")
+#train=as.h2o(train_df_auto)
+
+
+m_new_feat <- h2o.deeplearning(
+  model_id="dl_model_first_feat", 
+  training_frame=train, 
+  validation_frame=valid,   ## validation dataset: used for scoring and early stopping
+  x=names(train),
+  y="loss",
+  loss="Absolute",
+  activation="Rectifier",  ## default
+  hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
+  epochs=1,
+  nfolds = 2,
+  variable_importances=T,
+)
+
+plot(m_new_feat)
+summary(m_new_feat)
+
+setwd("C:\\Users\\Lanier\\Desktop\\kaggle\\Allstate")
+write.csv(as.data.frame(dat_h2o),"Train_new_feat.csv")
+
+set.seed(1234)
+
+
+
+pretrain=predict(auto, train)
+
+
+m0 <- h2o.deeplearning(
+  model_id="dl_model_first", 
+  training_frame=pretrain, 
+  validation_frame=valid,   ## validation dataset: used for scoring and early stopping
+  x=names(train),
+  y="loss",
+  loss="Absolute",
+  activation="Rectifier",  ## default
+  hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
+  epochs=1,
+  nfolds = 2,
+  variable_importances=T,
+)
+
+plot(m0)
+summary(m0)
