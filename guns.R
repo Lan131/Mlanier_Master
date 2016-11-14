@@ -64,7 +64,7 @@ if(data[i,2]<g_potential   && data[i,1]<c_potential)
 if(data[i,2]<g_potential   && data[i,1]>c_potential)
 {
   g_potential=g_potential-rnorm(1,.005,.001)
-  c_potential=c_potential+rnorm(1,.005,.001)
+
   if(g_potential<.0000000001)
   {
     g_potential=.01
@@ -179,11 +179,13 @@ if(data[i,2]>g_potential   && data[i,1]>c_potential)
 
 
 }
-
+attach(history)
 plot_ly (x = seq(1,itr,by=1),y=history[,1],type = 'scatter' ,mode = 'lines')
 plot_ly (x = seq(1,itr,by=1),y=history[,2],type = 'scatter' ,mode = 'lines')
 g_init
 c_init
+plot_ly (y=c_potential,x=g_potential)
+plot_ly (x=history$c_potential,y=history$g_potential)
 
  plot(x=seq(1,itr,by=1),y=history[,1]) 
  plot(x=seq(1,itr,by=1),y=history[,2]) 
