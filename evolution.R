@@ -26,7 +26,7 @@ iter = 100
 GAmodel <- rbga.bin(size = 7, popSize = 200, iters = iter, mutationChance = 0.01, 
                     elitism = T, evalFunc = evalFunc)
 
-
+GAmodel
 
 solution = c(1  ,  1  ,  0  ,  1  ,  1 ,   1   , 1)
 dataset[solution == 1, ]
