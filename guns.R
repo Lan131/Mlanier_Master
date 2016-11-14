@@ -6,7 +6,7 @@ g_potential=runif(1)
 g_init=g_potential
 c_init=c_potential
 
-
+set.seed(123)
 
 itr=500
 x=c(runif(1),runif(1),runif(1))
@@ -188,12 +188,10 @@ plot_ly (x = seq(1,itr,by=1),y=history[,2],type = 'scatter' ,mode = 'lines')
 g_init
 c_init
 
-plot_ly (x=history$c_potential,y=history$g_potential,type='scatter')
+
 
 p <- ggplot(history[250:itr,], aes(c_potential, g_potential))
 p + geom_point()+    geom_smooth(se=TRUE) 
 
 
-plot(x=seq(1,itr,by=1),y=history[,1]) 
-plot(x=seq(1,itr,by=1),y=history[,2]) 
 history
