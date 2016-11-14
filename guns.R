@@ -181,11 +181,13 @@ for(i in 1:itr)
   
 }
 attach(history)
+#c_potential vs itr
 plot_ly (x = seq(1,itr,by=1),y=history[,1],type = 'scatter' ,mode = 'lines')
+#g_potential vs itr
 plot_ly (x = seq(1,itr,by=1),y=history[,2],type = 'scatter' ,mode = 'lines')
 g_init
 c_init
-plot_ly (y=c_potential,x=g_potential)
+
 plot_ly (x=history$c_potential,y=history$g_potential,type='scatter')
 
 p <- ggplot(history[250:itr,], aes(c_potential, g_potential))
