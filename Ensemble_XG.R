@@ -14,26 +14,20 @@ test=read.csv("test.csv",header=T)
 
 SalePrice=dat[,81]
 combined=rbind(dat[,-81],test)
-combined <- data.frame(lapply(combined, as.character), stringsAsFactors=TRUE)
 combined <- data.frame(lapply(combined, as.numeric))
 combined=na.roughfix(combined)
 
 dat=cbind(combined[1:1460,],SalePrice)
-test=combined[1460:nrow(combined),]
+test=combined[1461:nrow(combined),]
 
 nzv <- nearZeroVar(dat)
 dat=dat[,-nzv]
 dat=dat[,-1]
-test=test[,-1]
+
 test=test[,-nzv]
+test=test[,-1]
 
 
-descrCor <-  cor(dat)
-highlyCorDescr <- findCorrelation(descrCor, cutoff = .75)
-dat <- dat[,-highlyCorDescr]
-test <- test[,-highlyCorDescr]
-descrCor2 <- cor(dat)
-summary(descrCor2[upper.tri(descrCor2)])
 
 #lmse=function(data,lev=NULL, model=NULL)
 #  {
@@ -45,50 +39,53 @@ summary(descrCor2[upper.tri(descrCor2)])
 
 fitControl <- trainControl(## 5-fold CV
   method = "cv",
-  number = 3,
+  number = 5,
+  
   search = "random"#,summaryFunction=lmse
 )
 
 
-fitControl2 <- trainControl(## 5-fold CV
-  method = "cv",
-  number = 3
-)
+
+
+
+
+
+dat
 
 xgbFit1 <- train(SalePrice ~ ., data = dat, #metric="lmse",maximize = FALSE,
-                 method = "xgbTree", 
-                 trControl = fitControl,preProc = c("center", "scale"),tuneLength = 10
-                 ,na.action=na.omit)       #.85
+                 method = "xgbTree"
+                 ,preProc = c("center", "scale")
+                 ,na.action=na.omit,metric='RMSE',maximize=F,trControl = fitControl
+                 ,tuneLength = 15)      
 
 
 pcaNetFit1 <- train(SalePrice ~ ., data = dat, 
-                 method = "pcaNNet", 
-                 trControl = fitControl,preProc = c("center", "scale"),tuneLength = 10
-                 ,na.action=na.omit)             #.40
+                method = "pcaNNet", 
+                trControl = fitControl,preProc = c("center", "scale"),tuneLength = 15
+                ,na.action=na.omit,metric='RMSE',maximize=F)             
 
 bayesFit1 <- train(SalePrice ~ ., data = dat, 
                                        method = "bayesglm", 
-                                       trControl = fitControl,preProc = c("center", "scale"),tuneLength = 10
-                                       ,na.action=na.omit) #.75
+                                      trControl = fitControl,preProc = c("center", "scale")
+                                      ,na.action=na.omit,metric='RMSE',maximize=F) 
 
 
 cart <-  train(SalePrice ~ ., data = dat,   
-               method = "rpart", 
-               trControl = fitControl2,preProc = c("center", "scale")
-               ,na.action=na.omit)               #.43
-
+              method = "rpart", 
+              trControl = fitControl2,preProc = c("center", "scale")
+              ,na.action=na.omit,metric='RMSE',maximize=F)               
 
 glm <-  train(SalePrice ~ ., data = dat,   
                method = "glmStepAIC", 
                trControl = fitControl2,preProc = c("center", "scale")
-               ,na.action=na.omit)               #.76
+               ,na.action=na.omit,metric='RMSE',maximize=F)               
 
 
 
 nnet <- train(SalePrice ~ ., data = dat,   
               method = "avNNet", 
               trControl = fitControl2,preProc = c("center", "scale")
-              ,na.action=na.omit)     
+              ,na.action=na.omit,metric='RMSE',maximize=F)     
 
 
 
@@ -131,10 +128,10 @@ testingData$bayes_PROB <- predict(object=model_bayes, testingData[,predictors])
 
 predictors <- names(blenderData)[names(blenderData) != labelName]
 final_blender_model <- train(blenderData[,predictors], blenderData[,labelName], method='xgbLinear', trControl=myControl)
+#Worse than initial xg boost due to small sample size
 
 
-
-preds <- predict(object=final_blender_model, test)
+preds <- predict(xgbFit1, test)
 submit=read.csv("sample_submission.csv")
 Submit=cbind(submit[,1],preds)
 colnames(Submit)=c("Id","SalePrice")
