@@ -1,0 +1,47 @@
+
+
+#property copyright "Copyright 2014, MetaQuotes Software Corp."
+#property link      "http://www.mq15.com"
+#property version       "1.00"
+#property strict
+
+
+void OnStart()
+{
+	//This is a comment
+	int x=5;
+	Print(x);  //Another Comment
+
+	/* Multiline comment
+
+          */
+
+	//----Format----
+   	
+	int 
+	x    = 7;
+	Print(x);
+
+
+	// -------Identifiers-----
+
+	int hello = 10;
+	int hello1 = 100;
+	
+	/*Rules to naming
+	
+	1)31 char max
+	2)only alpha numeric and underscore
+	3)cannot start with a digit
+	4)case sensitive
+	5)no reserved words
+	*/
+	int _hello=10;
+	int _HELLO=100;
+	
+	Print("hello world")
+	
+
+
+	
+}
