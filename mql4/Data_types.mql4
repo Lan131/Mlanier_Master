@@ -1,0 +1,31 @@
+
+
+#property copyright "Copyright 2014, MetaQuotes Software Corp."
+#property link      "http://www.mq15.com"
+#property version       "1.00"
+#property strict
+
+void OnStart()
+{
+	int x=10;
+	int hello;
+	hello = 10;
+	int y= 7;
+	z=x+y;
+	double hellothere =100;
+	
+
+	/*Datatypes
+	int,bool,string,double,color,Datatime
+	*/
+	
+	int apple=10;
+	bool orange = false;
+	string pear = "have a nice day";
+	double grame = -2785365336542.519;
+	color durian = DarkViolet;
+	datetime mango = D'2011.11.28 05:23:53';
+
+
+
+}
