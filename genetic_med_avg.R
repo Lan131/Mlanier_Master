@@ -43,12 +43,12 @@ evalFunc=function(income)
     current_solution=median(marginal)/mean(marginal)
     if(all.equal(order(data),order(marginal))!=TRUE) #check that data is in same order
         {
-            current_solution=.00001*current_solution
+            current_solution=.00000001*current_solution
       
           }
      if(sum(income)>budget)   #don't exceed budget
           {
-       current_solution=00001*current_solution
+       current_solution=.00001*current_solution
        
      }
     if(current_solution < -100000)
@@ -65,8 +65,16 @@ evalFunc=function(income)
     
 }
 
+monitor <- function(obj)
+{
+  curve(evalFunc, -1000, 1000, main = paste("iteration =", obj@iter))
+  points(obj@population, obj@fitness, pch = 20, col = 2)
+  rug(obj@population, col = 2)
+  Sys.sleep(0.2)
+}
 
 
 
-GAmodel = ga(type="real-valued",popSize=5000 fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL)
+GAmodel = ga(type="real-valued",popSize=5000,maxiter=300, fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL)
 summary(GAmodel)
+plot(GAmodel)
