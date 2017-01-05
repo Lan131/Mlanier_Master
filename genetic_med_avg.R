@@ -65,16 +65,11 @@ evalFunc=function(income)
     
 }
 
-monitor <- function(obj)
-{
-  curve(evalFunc, -1000, 1000, main = paste("iteration =", obj@iter))
-  points(obj@population, obj@fitness, pch = 20, col = 2)
-  rug(obj@population, col = 2)
-  Sys.sleep(0.2)
-}
 
 
 
-GAmodel = ga(type="real-valued",popSize=5000,maxiter=300, fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL)
+GAmodel = ga(type="real-valued",popSize=500,maxiter=100, fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL,keepBest=TRUE)#parallel=TRUE)
 summary(GAmodel)
 plot(GAmodel)
+
+sol=sort(GAmodel$Solution,decreasing=TRUE)
