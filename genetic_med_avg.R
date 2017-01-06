@@ -28,48 +28,54 @@ income=budget/length(data)+noise
 #Loss Function
 evalFunc=function(income)
 {
-
+  
   vec_frame=c(data,income)
   marginal=vector(mode="numeric",length=length(data))
-
+  
   for(i in 1:length(data)-1)
-      {
-         marginal[i]=(vec_frame[i+1+length(data)]-vec_frame[i+length(data)])/(vec_frame[i+1]-vec_frame[i])
+  {
+    marginal[i]=(vec_frame[i+1+length(data)]-vec_frame[i+length(data)])/(vec_frame[i+1]-vec_frame[i])
+    
+  }
   
-      }
+  
+  current_solution=median(marginal)/mean(marginal)*var(marginal)
 
+  if(sum(income)>budget)   #don't exceed budget
+  {
+    current_solution=.00001*current_solution
     
+  }
+
+  return(current_solution)
   
-    current_solution=median(marginal)/mean(marginal)
-    if(all.equal(order(data),order(marginal))!=TRUE) #check that data is in same order
-        {
-            current_solution=.00000001*current_solution
-      
-          }
-     if(sum(income)>budget)   #don't exceed budget
-          {
-       current_solution=.00001*current_solution
-       
-     }
-    if(current_solution < -100000)
-    {
-      current_solution=0
-      
-    }
-    if(current_solution > 100000)
-    {
-      current_solution=0
-      
-    }
-    return(current_solution)
-    
 }
 
 
+maxit=150
 
-
-GAmodel = ga(type="real-valued",popSize=500,maxiter=100, fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL,keepBest=TRUE)#parallel=TRUE)
+GAmodel = ga(type="real-valued",popSize=1000,maxiter=maxit, fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL,keepBest=TRUE,parallel=TRUE)
 summary(GAmodel)
 plot(GAmodel)
 
-sol=sort(GAmodel$Solution,decreasing=TRUE)
+
+
+sol=sort(GAmodel@bestSol[[maxit]],decreasing=TRUE)
+
+if(sum(sol)>budget)
+{
+  
+  sol=sol-(sum(sol)-budget)/length(sol)
+  
+}else{
+  
+  sol=sol+(budget-sum(sol))/length(sol)
+  
+  
+  
+}
+
+
+sort(sol/2080)
+
+
