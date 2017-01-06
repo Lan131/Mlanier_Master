@@ -40,7 +40,7 @@ evalFunc=function(income)
 
     
   
-    current_solution=median(marginal)/mean(marginal)*var(marginal)^.5
+    current_solution=median(marginal)/mean(marginal)
     
      if(sum(income)>budget)   #don't exceed budget
           {
