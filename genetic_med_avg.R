@@ -1,5 +1,5 @@
 library(GA)
-library(ggplot2)
+library(plotly)
 
 #This is given by manager
 data=c(61.54,   
@@ -28,35 +28,40 @@ income=budget/length(data)+noise
 #Loss Function
 evalFunc=function(income)
 {
-  
+
   vec_frame=c(data,income)
   marginal=vector(mode="numeric",length=length(data))
-  
+
   for(i in 1:length(data)-1)
-  {
-    marginal[i]=(vec_frame[i+1+length(data)]-vec_frame[i+length(data)])/(vec_frame[i+1]-vec_frame[i])
-    
-  }
+      {
+         marginal[i]=(vec_frame[i+1+length(data)]-vec_frame[i+length(data)])/(vec_frame[i+1]-vec_frame[i])
   
-  
-  current_solution=median(marginal)/mean(marginal)*var(marginal)
+      }
 
-  if(sum(income)>budget)   #don't exceed budget
-  {
-    current_solution=.00001*current_solution
     
-  }
-
-  return(current_solution)
   
+    current_solution=median(marginal)/mean(marginal)*var(marginal)^.5
+    
+     if(sum(income)>budget)   #don't exceed budget
+          {
+       current_solution=.00001*current_solution
+       
+     }
+   
+    return(current_solution)
+    
 }
 
 
-maxit=150
 
-GAmodel = ga(type="real-valued",popSize=1000,maxiter=maxit, fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL,keepBest=TRUE,parallel=TRUE)
+maxit=500
+GAmodel = ga(seed=123,type="real-valued",popSize=1500,maxiter=maxit, fitness = evalFunc, min = rep(32000,length(data)), max = rep(60000,length(data)), monitor = NULL,keepBest=TRUE)#parallel=TRUE)
 summary(GAmodel)
 plot(GAmodel)
+solution=GAmodel@bestSol[[maxit]]
+
+
+
 
 
 
@@ -75,7 +80,12 @@ if(sum(sol)>budget)
   
 }
 
+scaled_sol=sort(sol)/max(solution)
 
-sort(sol/2080)
 
+base <- qplot(scaled_sol, geom = "density",xlim=c(.7,1))
+base +
+  geom_point(aes( scaled_sol,0,  label = round(scaled_sol,1), vjust = -1), size = 3)
+
+write(sol,"solution.txt")
 
