@@ -7,7 +7,6 @@ import sys, os
 import h2o
 from h2o.estimators.deepwater import H2ODeepWaterEstimator
 import os.path
-from IPython.display import Image, display, HTML
 import pandas as pd
 import random
 import os.path
@@ -30,9 +29,9 @@ print(frame.head(5))
 
 
 r = frame.runif(seed=123)
-trial_frame = frame[r  < 0.05]                 ## 5% for trial run
-train_ensemble=frame[r  < 0.7] 
-test_ensemble=frame[r  > 0.7] 
+trial_frame = frame[r  < 0.01]                 ## 10% for trial run
+train_ensemble=frame[r  < 0.8] 
+test_ensemble=frame[r  > 0.8] 
 
 frame=trial_frame  #Comment this out later
 
@@ -74,6 +73,11 @@ predict=0.1*(4*a.predict(test_ensemble)+3*g.predict(test_ensemble)+1*i.predict(t
 
 
 h2o.make_metrics(actual=test[response],predicted=predict[2]).logloss()
+
+submit_predict=0.1*(4*a.predict(submit_frame)+3*g.predict(submit_frame)+1*i.predict(submit_frame)+2*a.predict(submit_frame))[2])
+
+df = pd.DataFrame( 'prob': submit_predict[1]})
+df.to_csv('predictions.csv', index = True)
 
 
 
