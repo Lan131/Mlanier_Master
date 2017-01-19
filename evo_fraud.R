@@ -7,7 +7,7 @@ data=c(10,5,1,3,7)
 
 #initialize data
 current_solution=0
-penalty=0
+
 
 #Loss Function
 evalFunc=function(data)
