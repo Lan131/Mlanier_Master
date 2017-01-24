@@ -17,5 +17,5 @@ Lag2=data[range(3,dim(data),1),:]
 Lag3=data[range(4,dim(data),1),:]
 data=h20.cbind(data,Lag1,Lag2,Lag3)
 
-
-train,test,valid = data.split_frame(ratios=(.7, .15))
+myX=[**col names**]
+model_fit_GBM <- h2o.gbm(x=myX,y="Close",data,nfolds=5,seed=1234,ntrees=100, max_depth=3, learn_rate=0.1)
