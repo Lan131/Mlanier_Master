@@ -12,5 +12,10 @@ h2o.init(nthreads = -1, max_mem_size = 8)
 
 data=h20.import_file(fin_dat)
 data=h2o.data.drop(1)
-idx=range(1,dim(data),1)
-data=h20.cbind(idx,data)
+Lag1=data[range(2,dim(data),1),:]
+Lag2=data[range(3,dim(data),1),:]
+Lag3=data[range(4,dim(data),1),:]
+data=h20.cbind(data,Lag1,Lag2,Lag3)
+
+
+train,test,valid = data.split_frame(ratios=(.7, .15))
