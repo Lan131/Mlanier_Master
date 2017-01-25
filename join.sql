@@ -1,6 +1,12 @@
-select Main.* from
+select distinct T1.*,T2.cust_id,T2.order_date as future_date,T2.units_purchased as future_purchase,1
+from Tab as T1 inner join Tab as T2 on T1.cust_id=T2.cust_id 
+where 
 
-(select T1.*,T2.order_date,T2.units_purchased,1
-from Table_1 as T1 inner join Table_1 as T2 on T1.cust_id=T2.cust_id 
-where DATEDIFF ( d , T1.order_date , T2.order_date ) >= 7 and DATEDIFF ( d , T1.date , T2.date ) <= 14 and T2.units_purchased<4) as MAIN left join Table_1 on Main.idx=T1.idx
+T2.order_date >= DATEADD(dd, ((DATEDIFF(dd, '17530101', T1.order_date) / 7) * 7) + 7, '17530101') AND
+    T2.order_date <= DATEADD(dd, ((DATEDIFF(dd, '17530101', T1.order_date) / 7) * 7) + 13, '17530101') AND
+
+
+
+ T2.units_purchased<4 
+
 
