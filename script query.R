@@ -13,7 +13,7 @@ for(i in 4:19)
            ,[Owner]
            ,[DTEntered])
      VALUES
-           ('Jeremy Stotler'
+           ('NAME'
            ,CAST('1/",
                    
                    
