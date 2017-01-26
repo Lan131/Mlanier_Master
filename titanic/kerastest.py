@@ -2,9 +2,18 @@ import keras
 from keras.models import Sequential
 from keras.utils import np_utils
 from keras.layers.core import Dense, Activation, Dropout
-
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+
+#df= pd.read_csv('path')
+#df = df.drop('idx', 1)
+#train, test = train_test_split(df, test_size = 0.2)
+#y_train = np_utils.to_categorical(train.ix[:,len(train.columns)].values.astype('int32')) 
+#test=test.astype('float32')
+#train=preprocessing.normalize(train)
+#test=preprocessing.normalize(test)
 
 # Read data
 train = pd.read_csv('C:\Users\\Michael\\Desktop\\titanic\\train_prepro.csv')
