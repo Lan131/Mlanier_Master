@@ -1,4 +1,5 @@
 #https://github.com/h2oai/h2o-3/blob/master/examples/deeplearning/notebooks/deeplearning_ensemble_boston_housing_R.ipynb
+#https://www.quora.com/How-do-I-create-Jupyter-notebook-on-AWS
 import keras
 from keras.models import Sequential
 from keras.utils import np_utils
