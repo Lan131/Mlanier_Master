@@ -16,7 +16,7 @@ SELECT
      cost, idx,
      (
      SELECT
-         ISNULL( AVG(cost) AS moving_average
+         ISNULL( AVG(cost) AS moving_average, cust_id
      FROM
           Tab T2
      WHERE
