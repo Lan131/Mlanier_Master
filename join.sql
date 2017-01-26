@@ -27,7 +27,8 @@ SELECT
                     Tab T3
                WHERE
                     date_column1 BETWEEN T1.order_date AND T2.order_date
-          ) BETWEEN 1 AND 5
+               group by cust_id
+          ) BETWEEN 1 AND 5 
      )
 FROM
      Tab T1
