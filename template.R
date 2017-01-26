@@ -1,4 +1,3 @@
-
 library(randomForest)
 library(corrplot)
 library(dplyr)
@@ -34,8 +33,9 @@ set.seed(1234)
 
 
 #Correlation plot and importances
-data=read.csv(path)
-head(data)
+data=read.csv("C:\\Users\\Lanier\\Desktop\\Tab.csv",header=T)
+data=data[,-c(1,2,3)]
+
 
 data=na.roughfix(data)
 
@@ -47,7 +47,7 @@ col3 <- colorRampPalette(c("red", "white", "blue"))
 col4 <- colorRampPalette(c("#7F0000","red","#FF7F00","yellow","#7FFF7F", 
                            "cyan", "#007FFF", "blue","#00007F"))   
 
-M=cor(data[,c(3,4,6,7,8)])
+M=cor(sapply(data[,1:6],as.numeric))
 
 corrplot.mixed(M, upper="ellipse", lower="number",col=col3(200))
 wb <- c("white","black")
@@ -55,19 +55,19 @@ corrplot(M, order="hclust", addrect=2, col=wb, bg="gold2")
 
 
 attach(data)
-fit=randomForest(x=sapply(data,as.numeric)[,-c(2,5)],y=as.factor(data[,5]),data=data)
+fit=randomForest(x=sapply(data,as.numeric)[,1:5],y=as.factor(data[,6]),data=data)
 info=fit$importance
 info=info[order(fit$importance),]
 varImpPlot(fit)
 
 
 p <- plot_ly(data=data,
-             x = c("SLA Met 2 month prior","SLA Met 1 month prior","Date", "Daily J8 Volume", "Daily J5 Volume"),
+             x = c("1","2","3","4","5"),
              y = as.vector(info),
              name = "Importance",
              type = "bar"
 )%>%
-  layout(title = "Factor Importance in Meeting Appeals SLA",
+  layout(title = "Factor Importance",
          xaxis = list(title = "Factors"),
          yaxis = list(title = "Importance"))
 
@@ -76,25 +76,25 @@ p
 
 #Pricipal Component analysis
 
-fit <- princomp(data, cor=TRUE)
-summary(fit) # print variance accounted for 
-loadings(fit) # pc loadings 
+fit2 <- princomp(data, cor=TRUE)
+summary(fit2) # print variance accounted for 
+loadings(fit2) # pc loadings 
 plot(fit,type="lines") # scree plot 
-fit$scores # the principal components
+fit2$scores # the principal components
 biplot(fit)
 
 #Autoencoder to find outliers
 
-h2o.init(nthreads = -1, max_mem_size="14g")
+h2o.init(nthreads = -1, max_mem_size="11g")
 
-train=as.h2o(train)
+train=as.h2o(data)
 
-response <- "loss"
+response <- "response"
 predictors <- setdiff(names(train), response)
 
 auto = h2o.deeplearning(x = names(train), training_frame = train,
-                               autoencoder = TRUE,activation="TanhWithDropout",
-                               hidden = c(10,5,10), epochs = 5)
+                        autoencoder = TRUE,activation="TanhWithDropout",
+                        hidden = c(10,5,10), epochs = 3)
 
 summary(auto)
 
@@ -125,21 +125,21 @@ fitControl <- trainControl(## 5-fold CV
 
 
 xgbFit <- train(response ~ ., data = data,
-                 method = "xgbTree"
-                 ,preProc = c("center", "scale")
-                 ,na.action=na.omit,metric='ROC',trControl = fitControl
-                 ,tuneLength = 15)      
+                method = "xgbTree"
+                ,preProc = c("center", "scale")
+                ,na.action=na.omit,metric='ROC',trControl = fitControl
+                ,tuneLength = 15)      
 
 
 deep <- train(response  ~ ., data = data, 
-                method = "deepboost", 
-                trControl = fitControl,preProc = c("center", "scale"),tuneLength = 15
-                ,na.action=na.omit,metric='ROC')             
+              method = "deepboost", 
+              trControl = fitControl,preProc = c("center", "scale"),tuneLength = 15
+              ,na.action=na.omit,metric='ROC')             
 
 bayesFit <- train(response ~ ., data = data, 
-                                       method = "bayesglm", 
-                                      trControl = fitControl,preProc = c("center", "scale")
-                                      ,na.action=na.omit,metric='ROC') 
+                  method = "bayesglm", 
+                  trControl = fitControl,preProc = c("center", "scale")
+                  ,na.action=na.omit,metric='ROC') 
 
 
 pls <-  train(response  ~ ., data = data,   
@@ -153,6 +153,3 @@ nnet <- train(response  ~ ., data = data,
               method = "avNNet", 
               trControl = fitControl,preProc = c("center", "scale")
               ,na.action=na.omit,metric='ROC')     
-
-
-
