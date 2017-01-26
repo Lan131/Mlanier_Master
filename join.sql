@@ -16,7 +16,7 @@ SELECT
      cost, idx,
      (
      SELECT
-          AVG(cost) AS moving_average
+         ISNULL( AVG(cost) AS moving_average
      FROM
           Tab T2
      WHERE
@@ -29,7 +29,7 @@ SELECT
                     date_column1 BETWEEN T1.order_date AND T2.order_date
                group by cust_id
           ) BETWEEN 1 AND 5 
-     )
+     ),0)
 FROM
      Tab T1
 GROUP BY 
