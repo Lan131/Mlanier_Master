@@ -9,4 +9,27 @@ order by T1.idx
 
 select * from Tab as T1 left join
 
-(select T1.cust_id as previous_cust,T1.items as previous_buy, 1 as returning from Tab as T1 inner join Tab as T2 on T1.cust_id=T2.cust_id where DATEDIFF(d,T1.order_date,T2.order_date)>0) as T2 on T1.idx=T2.idx
+(select T1.cust_id as previous_cust, 1 as returning from Tab as T1 inner join Tab as T2 on T1.cust_id=T2.cust_id where DATEDIFF(d,T1.order_date,T2.order_date)>0) as T2 on T1.idx=T2.idx
+
+
+SELECT
+     cost, idx,
+     (
+     SELECT
+          AVG(cost) AS moving_average
+     FROM
+          Tab T2
+     WHERE
+          (
+               SELECT
+                    COUNT(*)
+               FROM
+                    Tab T3
+               WHERE
+                    date_column1 BETWEEN T1.order_date AND T2.order_date
+          ) BETWEEN 1 AND 5
+     )
+FROM
+     Tab T1
+GROUP BY 
+     cust_id
