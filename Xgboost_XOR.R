@@ -24,8 +24,8 @@ xgb=train(Survived~as.factor(Pclass)+as.factor(Sex)+Age+SibSp+Fare+as.factor(Emb
           trControl=tc,preProc=c('center','scale'),tuneLength=2)
 predict(newdata=new,object=xgb)
 
-myID = "44c0e3ce99f545f1848919d25e7639d6"
-myAuth= "0d86dea367a64c298f60aa8587c5eb8e"
+myID = "44c0e3ce99f545f1848919d25e7639d"
+myAuth= "0d86dea367a64c298f60aa8587c5eb8"
 
 XGB_function=function(data)
   
