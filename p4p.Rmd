@@ -1,0 +1,78 @@
+---
+title: "Pay for Performance"
+author: "Michael Lanier"
+date: "January 31, 2017"
+output: 
+  html_document:
+    theme: journal
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Overview
+
+```{r,include=F}
+setwd("C:/Users/0019091/Desktop/Project")
+data=read.csv("p4p_info.csv",header=T)
+library(plotly)
+library(dplyr)
+library(ggplot2)
+```
+
+We can click on each group to toggle changes. What we observe is that there is a direct linear relationship between pay and performance across all lines of bussiness. 
+
+```{r,echo=F}
+
+
+
+p=ggplot(data = data, aes(x = x, y = Pay, colour=Group)) +
+  geom_point(aes(text = "Group"), size = 1) +
+  stat_smooth(aes(colour = Group,fill= Group),size=.1)+
+  scale_color_discrete()
+
+(gg <- ggplotly(p))
+
+```
+
+One immediate question is why some groups have steeper lines than others (specificlly front end. We will explore this question below.
+
+##Effect Size
+
+I am defining the marginal return to wages per production as the "Effect" of production on wages. The effect size is how much more money you earn per hour given a 1 point increase in production. This varies from group to group dependent on budgets and standard deviations. The effect size is the steepness of the above lines.
+
+###Standard deviation vs pay
+
+As we can see here as the standard deviation increases the marginal return to wages per production decreases. __In short, this means for a group with a large standard deviation we expect more production from them to pay them more.__
+
+```{r stdev,echo=FALSE, warning=FALSE, message=FALSE}
+
+fit1=lm(Pay~x, data=subset(data,Group=="Appeals"))
+Appeals_Effect=fit1$coef[2]
+fit2=lm(Pay~x, data=subset(data,Group=="Front End"))
+Front_End_Effect=fit2$coef[2]
+fit3=lm(Pay~x, data=subset(data,Group=="Part A"))
+Part_A_Effect=fit3$coef[2]
+fit4=lm(Pay~x, data=subset(data,Group=="Part B"))
+Part_B_Effect=fit4$coef[2]
+
+Effects=c(Appeals_Effect,Front_End_Effect,Part_A_Effect,Part_B_Effect)
+data2=cbind(summarize(group_by(data,Group),Standard_deviation=var(x)^.5),Effects)
+
+data2
+row.names(data2)=data2[,1]
+p2=ggplot(data = data2, aes(x = Standard_deviation, y = Effects,label=rownames(data2)))+
+  geom_point(aes(text = "Group"), size = 1)
+
+
+p2+geom_abline(intercept=coef(lm(Effects~Standard_deviation,data2))[1],slope=coef(lm(Effects~Standard_deviation,data2))[2])+geom_smooth()+geom_text()
+
+
+```
+
+
+
+Why does this make sense? Because as the standard deviation becomes large this implies that some people are performing exceptionally well- and we are rewarding them as such. __Since we have a limited budget, this means less money to divide amoung the rest, meaning they have to compete harder.__ Thus the marginal value of production to wages drops.
