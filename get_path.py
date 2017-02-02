@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 df = pd.DataFrame([,], columns=list('XY'))
-dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path = os.path.expanduser("~/h2o-3/")
 folders = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
  
 
