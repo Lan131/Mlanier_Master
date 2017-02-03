@@ -1,4 +1,4 @@
-
+#http://guides.temple.edu/mining-twitter/scraping
 
 indicoio.config.api_key = 'my_api_key'
 
