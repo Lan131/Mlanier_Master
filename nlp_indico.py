@@ -1,4 +1,21 @@
 #http://guides.temple.edu/mining-twitter/scraping
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+
+data = pandas.read_csv("test.csv", header=0)
+text = list(data.a)
+
+sent=indicoio.sentiment(text)
+sent=np.linspace(1, len(sent),num=len(sent))
+
+#df1 = pd.DataFrame(sent, columns=['sent'])
+#df2 = pd.DataFrame(sent, columns=['sent'])
+
+#df = pd.concat([df1, df2], join='outer', axis=1)
+sns.tsplot(sent, err_style="boot_traces", n_boot=500)
+
 
 indicoio.config.api_key = 'my_api_key'
 
