@@ -1,0 +1,22 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import statsmodels.formula.api as smf
+import seaborn as sns
+
+
+df=pd.read_csv("pivot.csv",header=0)
+ df.head()
+ df.describe()
+ df['Amount']
+ df.boxplot()
+ plt.show()
+ df['Date'] = pd.to_datetime(df['Date'])
+ df['date_delta'] = (df['Date'] - df['Date'].min())  / np.timedelta64(1,'Ddf['Date'] = pd.to_datetime(df['Date'])
+ result = smf.ols(formula = 'Amount ~ date_delta', data = df).fit()
+ print result.summary()
+ 
+ sns.tsplot(df['date_delta'].append(df['Amount']), err_style="boot_traces", n_boot=500)
+ plt.show()
+ 
+ 
