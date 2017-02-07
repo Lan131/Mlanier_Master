@@ -1,4 +1,5 @@
 #http://guides.temple.edu/mining-twitter/scraping
+#http://stackoverflow.com/questions/17905350/running-an-ipython-jupyter-notebook-non-interactively/17913858#17913858
 import pandas as pd
 import numpy as np
 import seaborn as sns
