@@ -2,11 +2,20 @@
 title: "Pay for Performance Densities v2"
 author: "Michael Lanier"
 date: "February 22, 2017"
-output: word_document
+output: 
+  html_document:
+    theme: journal
+    toc: true
+    toc_float: true
 ---
 
 
 ## Definitions and terms used
+The standardized score is the production score minus the unit average divided by the standard deviation of the group. A score of zero corresponds to the unit average.
+
+The density refers the probability density. This represents the likelihood of finding an individual at a particular score if an individual was randomly selected from the group.
+
+
 
 ## Individual Plots
 ```{r setup, echo=F, include=F}
@@ -43,9 +52,9 @@ Score=function(data)
 graph=function(scores,data)   
 {
 
-Score_=as.data.frame(cbind(S=scores,D=dnorm(scores)))
+Score_=as.data.frame(cbind(Standarized_Score=scores,Density=dnorm(scores)))
 
-base <- ggplot(Score_, aes(S,D),xlim=c(-2,2))+ geom_point()+geom_smooth()+
+base <- ggplot(Score_, aes(Standarized_Score,Density),xlim=c(-2,2))+ geom_point()+geom_smooth()+
 labs(title = paste("The Unit Average is",round(mean(data[,2]),2)))
 return(base)
 
@@ -64,6 +73,7 @@ graph(Score(partA_MR),partA_MR)
 
 ```{r Graph2, echo=F}
 graph(Score(partB_MR),partB_MR)
+
 ```
 
 ##All Nurses
@@ -90,7 +100,7 @@ graph(Score(partB_mixed),partB_mixed)
 
 ##Comparison
 
-This shows the various departments distributions in comparison.
+This shows the various departments distributions in comparison. Values are the percentage of the RE. The way to read this is that the value on the bottom is the corresponding percentile on the y axis. For instance 120 is the 75th percentile for nurses. Which means 75% of nurses had production of 120% the RE or worse. 120% of the RE is approximately the 90th percentile for part A appeals.
 
 
 
@@ -110,10 +120,20 @@ Avgs= aggregate(df2[,1], list(df2$ind), mean)
 
 q <- ggplot(df2, aes(x = values),facets=ind) +labs(title = "Precentiles")+
   stat_ecdf(geom = "line",aes(group = ind, color = ind),position="identity")+ facet_grid(ind ~ .)+ scale_y_continuous(labels = scales::percent)
+ggplotly(q)
 
-print(q)
 
 
 ```
 
+Here are the unscaled estimates.
 
+```{r}
+
+p <- ggplot(df2, aes(x = values)) + 
+  geom_density(aes(fill = ind), alpha = 0.5) + 
+  ggtitle("Kernel Density estimates by group")
+
+ggplotly(p)
+
+```
