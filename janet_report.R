@@ -2,11 +2,13 @@
 title: "Pay for Performance Densities v2"
 author: "Michael Lanier"
 date: "February 22, 2017"
-output: 
+output:
   html_document:
     theme: journal
-    toc: true
-    toc_float: true
+    toc: yes
+    toc_float: yes
+  word_document:
+    toc: yes
 ---
 
 
@@ -60,40 +62,101 @@ return(base)
 
 }
 
+graph_ns=function(data)   
+{
+
+Score_=as.data.frame(cbind(Production=data[,2],Density=dnorm(data[,2],mean=mean(data[,2]),sd=var(data[,2])^.5)))
+
+base <- ggplot(Score_, aes(Production,Density),xlim=c(min(data[,2])-10,2),max(data[,2])+10)+ geom_point()+geom_smooth()+
+labs(title = paste("The Unit Average is",round(mean(data[,2]),2)))
+return(base)
+
+}
+
 ```
 
 ##Part A MR production
 
 ```{r Graph1, echo=F,warning = FALSE}
 
-graph(Score(partA_MR),partA_MR)
+ggplotly(graph(Score(partA_MR),partA_MR))
 ```
 
 ##Part B MR production
 
 ```{r Graph2, echo=F}
-graph(Score(partB_MR),partB_MR)
+ggplotly(graph(Score(partB_MR),partB_MR))
 
 ```
 
-##All Nurses
+##Part A Nurses
 
 ```{r Graph3, echo=F}
-graph(Score(All),All)
+ggplotly(graph(Score(partA_Appeals),partA_Appeals))
+```
+
+
+##All Nurses
+
+```{r Graph4, echo=F}
+ggplotly(graph(Score(All),All))
 ```
 
 ##Part A Mixed
 
-```{r Graph4, echo=F}
-graph(Score(partA_mixed),partA_mixed)
+```{r Graph5, echo=F}
+ggplotly(graph(Score(partA_mixed),partA_mixed))
 ```
 
 
 
 ##Part B Mixed
 
-```{r Graph5, echo=F}
-graph(Score(partB_mixed),partB_mixed)
+```{r Graph6, echo=F}
+ggplotly(graph(Score(partB_mixed),partB_mixed))
+```
+
+
+
+##Part A MR production (non scaled)
+
+```{r Graph7, echo=F,warning = FALSE}
+
+ggplotly(graph_ns(partA_MR))
+```
+
+##Part B MR production(non scaled)
+
+```{r Graph8, echo=F}
+ggplotly(graph_ns(partB_MR))
+
+```
+
+##Part A Nurses(non scaled)
+
+```{r Graph9, echo=F}
+ggplotly(graph_ns(partA_Appeals))
+```
+
+
+##All Nurses(non scaled)
+
+```{r Graph10, echo=F}
+ggplotly(graph_ns(All))
+```
+
+##Part A Mixed(non scaled)
+
+```{r Graph11, echo=F}
+ggplotly(graph_ns(partA_mixed))
+```
+
+
+
+##Part B Mixed(non scaled)
+
+```{r Graph12, echo=F}
+ggplotly(graph_ns(partB_mixed))
 ```
 
 
@@ -120,6 +183,7 @@ Avgs= aggregate(df2[,1], list(df2$ind), mean)
 
 q <- ggplot(df2, aes(x = values),facets=ind) +labs(title = "Precentiles")+
   stat_ecdf(geom = "line",aes(group = ind, color = ind),position="identity")+ facet_grid(ind ~ .)+ scale_y_continuous(labels = scales::percent)
+#print(q)
 ggplotly(q)
 
 
@@ -130,10 +194,11 @@ Here are the unscaled estimates.
 
 ```{r}
 
-p <- ggplot(df2, aes(x = values)) + 
-  geom_density(aes(fill = ind), alpha = 0.5) + 
+p <- ggplot(df2, aes(x = values, colour=ind)) + 
+  geom_density(adjust = 2.5) + 
   ggtitle("Kernel Density estimates by group")
 
+#print(p)
 ggplotly(p)
 
 ```
