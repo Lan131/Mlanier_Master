@@ -6,6 +6,13 @@ resi = fit$resi
 n=100
 
 plot(fit)
+library(plotly)
+p=ggplot(data = ratio_test, aes(x = Day, y = Ratio,colour=Ratio)) +
+  stat_smooth(aes(colour = Ratio,fill= Ratio),size=.1)+
+  geom_point(aes(text = paste("Ratio:", Ratio)), size = 1)
+
+
+(gg <- ggplotly(p))
 
 diagPlot<-function(model){
     p1<-ggplot(model, aes(.fitted, .resid))+geom_point()
