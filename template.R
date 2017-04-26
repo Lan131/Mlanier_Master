@@ -118,7 +118,7 @@ h2o.shutdown(prompt = TRUE)
 fitControl <- trainControl(## 5-fold CV
   method = "cv",
   number = 5,
-  summaryFunction = twoClassSummary,classProbs = TRUE,summaryFunction = twoClassSummary,
+  summaryFunction = twoClassSummary,classProbs = TRUE,
   search = "random"
 )
 
