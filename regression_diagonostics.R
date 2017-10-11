@@ -89,3 +89,14 @@ durbinWatsonTest(fit)
 library(gvlma)
 gvmodel <- gvlma(fit) 
 summary(gvmodel)
+#graph y hat vs y
+data2=cbind(data$y,fit$fitted.values)
+print(data2)
+
+q=ggplot(data = as.data.frame(data2), aes(x = y, y = fit$fitted.values,colour=fit$fitted.values)) +
+  stat_smooth(aes(colour = fit$fitted.values,fill= fit$fitted.values),size=.1)+
+  geom_point(aes(text = paste("fitted values", fit$fitted.values)), size = 1)
+
+
+ggplotly(q)
+
