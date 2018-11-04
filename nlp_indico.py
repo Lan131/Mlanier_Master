@@ -16,7 +16,7 @@ sent=np.linspace(1, len(sent),num=len(sent))
 
 #df = pd.concat([df1, df2], join='outer', axis=1)
 sns.tsplot(sent, err_style="boot_traces", n_boot=500)
-
+df.set_index('index').plot()
 
 indicoio.config.api_key = 'my_api_key'
 
