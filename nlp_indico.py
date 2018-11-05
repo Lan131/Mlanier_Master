@@ -3,21 +3,21 @@
 import pandas as pd
 import numpy as np
 import seaborn as sns
-
+import matplotlib.pyplot as plt 
 
 data = pandas.read_csv("test.csv", header=0)
 text = list(data.a)
 
 sent=indicoio.sentiment(text)
-sent=np.linspace(1, len(sent),num=len(sent))
+index=np.linspace(1, len(sent),num=len(sent))
 
 #df1 = pd.DataFrame(sent, columns=['sent'])
-#df2 = pd.DataFrame(sent, columns=['sent'])
+#df2 = pd.DataFrame(index, columns=['index'])
 
 #df = pd.concat([df1, df2], join='outer', axis=1)
 sns.tsplot(sent, err_style="boot_traces", n_boot=500)
 df.set_index('index').plot()
-
+plt.show()
 indicoio.config.api_key = 'my_api_key'
 
 
