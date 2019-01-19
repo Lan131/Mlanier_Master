@@ -1,0 +1,54 @@
+#install.packages("GA")
+library(GA)
+library(doParallel)
+library(ggplot2)
+#Generate example data
+IND=seq(1,50,by=1)
+Priority=sample(100,replace=TRUE)
+cost=sample(100,replace=TRUE) #in thousands
+
+data=as.data.frame(cbind(IND,Priority,cost))
+
+
+budget=sum(cost)*.9
+
+
+
+n = nrow(data) # Number of items
+
+# Define fitness function 
+eval_fun <- function(x) { 
+  f = sum(x * data$cost) 
+  penalty = sum(data$Priority) * abs(sum(x * data$Priority) - budget) 
+  return(f - penalty) 
+}
+
+# Run SGA
+SGA <- ga(type="binary", 
+          fitness=eval_fun , 
+          nBits=n, 
+          maxiter=500, # Maximum number of generations 
+          run=200,     # Stop if the best-so-far fitness
+          # hasn't improved for 'run' generations 
+          popSize=max(IND), 
+          seed=101,
+          parallel=FALSE)
+
+
+plot(SGA)
+
+
+x.star <- SGA@solution
+ans=t(as.data.frame(x.star))
+answer=cbind(data,ans)
+sum(answer$cost*answer$ans)
+sum(answer$cost*answer$ans)/sum(cost)
+
+
+data_just_winners=subset(answer,answer$ans==1)
+qplot(data_just_winners$Priority)
+qplot(data$Priority)
+
+summary(data_just_winners)
+
+summary(data)
