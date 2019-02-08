@@ -1,0 +1,73 @@
+if ("package:h2o" %in% search()) { detach("package:h2o", unload=TRUE) }
+if ("h2o" %in% rownames(installed.packages())) { remove.packages("h2o") }
+
+# Next, we download packages that H2O depends on.
+pkgs <- c("RCurl","jsonlite")
+for (pkg in pkgs) {
+  if (! (pkg %in% rownames(installed.packages()))) { install.packages(pkg) }
+}
+
+
+#Data is here https://www.kaggle.com/c/microsoft-malware-prediction/data
+# Now we download, install and initialize the H2O package for R.
+#install.packages("h2o", type="source", repos=(c("http://h2o-release.s3.amazonaws.com/h2o/latest_stable_R")))
+# Finally, let's load H2O and start up an H2O cluster
+library(h2o)
+#h2o.removeAll()
+
+
+
+h2o.init(min_mem_size='12G')
+#h2o.no_progress()  # Turn off progress bars for notebook readability
+
+#h2o.xgboost.available()
+# Use local data file or download from GitHub
+train="train.csv"
+pred="test.csv"
+# Load data into H2O
+
+df <- h2o.importFile(train)
+splits = h2o.splitFrame(df,ratios = c(0.00075), seed = 1)
+df = splits[[1]]
+
+
+h2o.describe(df)
+y <- "HasDetections"
+df[,y]=as.factor(df[,y])
+x <- setdiff(names(df), c(y, "MachineIdentifier"))
+
+aml <- h2o.automl(y = y, x = x,
+                  training_frame = df,
+                  max_models = 10, max_runtime_secs = 600,
+                  seed = 1)
+
+print(aml@leaderboard)
+
+plot(aml@leaderboard[1])
+print(lb, n = nrow(lb))
+
+# Get model ids for all models in the AutoML Leaderboard
+model_ids <- as.data.frame(aml@leaderboard$model_id)[,1]
+# Get the "All Models" Stacked Ensemble model
+se <- h2o.getModel(grep("StackedEnsemble_AllModels", model_ids, value = TRUE)[1])
+# Get the Stacked Ensemble metalearner model
+metalearner <- h2o.getModel(se@model$metalearner$name)
+
+h2o.varimp(metalearner)
+
+h2o.varimp_plot(metalearner)
+
+h2o.saveModel(aml@leader, path = "./best_model_bin")
+
+pred= h2o.importFile(pred)
+splits = h2o.splitFrame(pred,ratios = c(0.00075), seed = 1)
+pred = splits[[1]]
+y <- "HasDetections"
+y_df=as.h2o(as.data.frame(vector(mode="numeric",length=h2o.nrow(pred))))
+names(y_df)=y
+pred=h2o.cbind(pred,y_df)
+pred[,y]=as.factor(pred[,y])
+x <- setdiff(names(pred), c(y,"MachineIdentifier"))
+
+output=h2o.predict(aml@leader, pred[,x])
+
