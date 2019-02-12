@@ -2,7 +2,7 @@ library(caret)
 names(getModelInfo())
 ?bagEarth
 getModelInfo()$glm$type
-
+ #http://philipmgoddard.com/R/custom_models_with_caret
 
 library(RCurl)
 urlfile <-'https://raw.githubusercontent.com/hadley/fueleconomy/master/data-raw/vehicles.csv'
