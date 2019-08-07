@@ -1,3 +1,4 @@
+# Hidden markovs model
 #install.packages("HMM")
 #install.packages("HMMCont")
 library(HMMCont)
